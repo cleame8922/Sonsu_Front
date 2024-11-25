@@ -67,14 +67,14 @@ return (
             isOpen={isSidebarOpen}
             icon={<FaClipboardList color="#000000" />}
             label="O/X 퀴즈"
-            to="/"
+            to="/QuizStart"
             closeSidebar={() => setIsSidebarOpen(false)} // Close sidebar when clicked
             />
             <NavItem
             isOpen={isSidebarOpen}
             icon={<PiTimerBold color="#000000" />}
             label="스피드퀴즈"
-            to="/"
+            to="/SpeedStart"
             closeSidebar={() => setIsSidebarOpen(false)} // Close sidebar when clicked
             />
             <NavItem

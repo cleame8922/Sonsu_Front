@@ -4,14 +4,20 @@ import { IoClose } from "react-icons/io5";
 
 export default function Quiz() {
     const [showAnimation, setShowAnimation] = useState(false); // 애니메이션 상태 추가
+    const [showCorrectModal, setShowCorrectModal] = useState(false); // 정답 모달 상태
+    const [showIncorrectModal, setShowIncorrectModal] = useState(false); // 오답 모달 상태
 
     const handleCorrect = () => {
-        setShowAnimation(true); // 애니메이션 표시
-        setTimeout(() => setShowAnimation(false), 2000); // 애니메이션 종료
+        setShowCorrectModal(true); // 정답 시 모달 띄우기
     };
 
     const handleIncorrect = () => {
-        alert("오답입니다!"); // 오답 처리
+        setShowIncorrectModal(true); // 오답 시 모달 띄우기
+    };
+
+    const closeModal = () => {
+        setShowCorrectModal(false); // 모달 닫기
+        setShowIncorrectModal(false); // 오답 모달 닫기
     };
 
     return (
@@ -41,14 +47,46 @@ export default function Quiz() {
                         </div>
                     </div>
                 </div>
-
-                {/* 애니메이션 아이콘 */}
-                {showAnimation && (
-                    <CgShapeCircle
-                        className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] text-[red] text-[170px] animate-scale-up"
-                    />
-                )}
             </div>
+
+            {/* 정답 모달 */}
+            {showCorrectModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="text-center bg-white rounded-lg p-9">
+                        <h2 className="mb-4 text-2xl text-red-500">정답입니다~!!</h2>
+                        <div className="flex m-[60px]">
+                            <img src="/images/correct.png" alt="correct" className="w-[250px]" />
+                        </div>
+                        <button
+                            onClick={closeModal}
+                            className="px-6 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-400"
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 오답 모달 */}
+            {showIncorrectModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="p-8 text-center bg-white rounded-lg">
+                        <h2 className="mb-4 text-2xl text-red-500">오답입니다!</h2>
+                        <div className="flex m-9">
+                            <img src="/images/incorrect.png" alt="incorrect" className="w-[200px]" />
+                            <div className="flex items-center font-bold text-[20px] text-[#222] p-5">
+                                여기에는 오답해설을 적을건가요?
+                            </div>
+                        </div>
+                        <button
+                            onClick={closeModal}
+                            className="px-6 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-400"
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

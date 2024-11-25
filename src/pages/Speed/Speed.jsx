@@ -1,62 +1,123 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GiAlarmClock } from "react-icons/gi";
+import { Camera } from "@mediapipe/camera_utils";
+import { Hands } from "@mediapipe/hands";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 export default function Quiz() {
     const [error, setError] = useState(null);
-    const [seconds, setSeconds] = useState(10);
-    const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 여부
-    const videoRef = useRef(null); // video 요소의 참조를 관리하는 useRef
-    const streamRef = useRef(null); // 스트림을 관리하는 useRef
+    const [seconds, setSeconds] = useState(10); // 타이머 초기 값 10초
+    const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 상태
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const streamRef = useRef(null);
+    const handsRef = useRef(null);
+    const cameraRef = useRef(null);
 
     useEffect(() => {
-        // 컴포넌트 마운트 시 웹캠 자동 시작
         const startWebcam = async () => {
             try {
                 const userMedia = await navigator.mediaDevices.getUserMedia({
                     video: true,
                 });
-                streamRef.current = userMedia; // 스트림을 ref에 저장
+                streamRef.current = userMedia;
                 if (videoRef.current) {
-                    videoRef.current.srcObject = userMedia; // 스트림을 video 요소에 연결
+                    videoRef.current.srcObject = userMedia;
                 }
+                initializeHandDetection();
             } catch (err) {
                 setError("웹캠을 시작할 수 없습니다.");
                 console.error("웹캠 에러:", err);
             }
         };
 
+        const initializeHandDetection = () => {
+            handsRef.current = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                },
+            });
+
+            handsRef.current.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+            });
+
+            handsRef.current.onResults(onResults);
+
+            if (videoRef.current) {
+                cameraRef.current = new Camera(videoRef.current, {
+                    onFrame: async () => {
+                        await handsRef.current.send({ image: videoRef.current });
+                    },
+                    width: 800,
+                    height: 600,
+                });
+                cameraRef.current.start();
+            }
+        };
+
         startWebcam();
 
-        // 컴포넌트 언마운트 시 웹캠 정리
         return () => {
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach((track) => track.stop());
             }
+            if (cameraRef.current) {
+                cameraRef.current.stop();
+            }
         };
-    }, []); // 이 effect는 한 번만 실행되도록 [] 의존성 배열을 설정
+    }, []);
+
+    const onResults = (results) => {
+        const canvasCtx = canvasRef.current.getContext("2d");
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        if (results.multiHandLandmarks) {
+            for (const landmarks of results.multiHandLandmarks) {
+                drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, {
+                    color: "#00FF00",
+                    lineWidth: 5,
+                });
+                drawLandmarks(canvasCtx, landmarks, {
+                    color: "#FF0000",
+                    lineWidth: 2,
+                });
+            }
+        }
+        canvasCtx.restore();
+    };
 
     useEffect(() => {
-        // 타이머 로직
         if (isTimerRunning && seconds > 0) {
             const timer = setInterval(() => {
                 setSeconds((prevSeconds) => {
                     if (prevSeconds > 1) {
                         return prevSeconds - 1;
                     } else {
-                        clearInterval(timer); // 타이머 종료
+                        clearInterval(timer);
                         return 0;
                     }
                 });
             }, 1000);
 
-            return () => clearInterval(timer); // 타이머 정리
+            return () => clearInterval(timer);
         }
-    }, [isTimerRunning, seconds]); // isTimerRunning과 seconds가 변경될 때마다 실행
+    }, [isTimerRunning, seconds]);
 
     const handleStart = () => {
         if (!isTimerRunning) {
-            setSeconds(10); // 타이머를 10초로 초기화
-            setIsTimerRunning(true); // 타이머 시작
+            setIsTimerRunning(true);
+        }
+    };
+
+    const handleStop = () => {
+        if (isTimerRunning) {
+            setIsTimerRunning(false);
         }
     };
 
@@ -65,7 +126,7 @@ export default function Quiz() {
             <div
                 className={`flex justify-center h-screen items-center bg-gradient-to-b from-[#fffdef] relative ${
                     seconds <= 5 ? "text-red-500" : "text-black"
-                }`} // 5초 이하일 때 텍스트 색상 변경
+                }`}
             >
                 <div className="flex w-full">
                     <div className="flex flex-col items-center justify-center w-full">
@@ -75,9 +136,15 @@ export default function Quiz() {
                         <div className="flex">
                             <button
                                 className="font-semibold px-5 py-1 text-[20px] text-white transition-colors bg-yellow-500 rounded-lg hover:bg-yellow-400"
-                                onClick={handleStart} // 시작하기 버튼 클릭 시 타이머 시작
+                                onClick={handleStart}
                             >
                                 시작하기
+                            </button>
+                            <button
+                                className="font-semibold px-5 py-1 text-[20px] text-white transition-colors bg-red-500 rounded-lg hover:bg-red-400 ml-4"
+                                onClick={handleStop}
+                            >
+                                멈추기
                             </button>
                             <div className="flex items-center ml-5">
                                 <GiAlarmClock className="size-11" />
@@ -92,12 +159,24 @@ export default function Quiz() {
                                     {error}
                                 </div>
                             ) : (
-                                <video
-                                    ref={videoRef} // video 요소에 ref 연결
-                                    autoPlay
-                                    className="rounded-lg shadow-lg"
-                                    style={{ width: '800px', height: '600px' }}
-                                />
+                                <div className="relative">
+                                    <video
+                                        ref={videoRef}
+                                        className="rounded-lg shadow-lg"
+                                        style={{
+                                            width: "800px",
+                                            height: "600px",
+                                            visibility: "hidden",
+                                            position: "absolute",
+                                        }}
+                                    />
+                                    <canvas
+                                        ref={canvasRef}
+                                        className="rounded-lg shadow-lg"
+                                        width={800}
+                                        height={600}
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>

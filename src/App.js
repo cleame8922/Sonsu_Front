@@ -11,6 +11,7 @@ import QuizStart from "./pages/Quiz/QuizStart";
 import Speed from "./pages/Speed/Speed";
 import SpeedInfo from "./pages/Speed/SpeedInfo";
 import SpeedStart from "./pages/Speed/SpeedStart";
+import MyPage from "./pages/MyPage";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +37,7 @@ function App() {
             <Route path="/Speed" element={<Speed />} />
             <Route path="/SpeedInfo" element={<SpeedInfo />} />
             <Route path="/SpeedStart" element={<SpeedStart />} />
+            <Route path="/MyPage" element={<MyPage />} />
           </Routes>
         </div>
       </BrowserRouter>

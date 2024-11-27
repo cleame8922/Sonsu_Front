@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { GiAlarmClock } from "react-icons/gi";
 import { Camera } from "@mediapipe/camera_utils";
 import { Hands } from "@mediapipe/hands";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
-export default function Quiz() {
+export default function Study() {
     const [error, setError] = useState(null);
     const [seconds, setSeconds] = useState(10); // 타이머 초기 값 10초
     const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 상태
@@ -119,80 +118,43 @@ export default function Quiz() {
         return () => clearInterval(timer);
         }
     }, [isTimerRunning, seconds]);
-
-    const handleStart = () => {
-        if (!isTimerRunning) {
-        setIsTimerRunning(true);
-        }
-    };
-
-    const handleStop = () => {
-        if (isTimerRunning) {
-        setIsTimerRunning(false);
-        }
-    };
-
+    
     return (
-        <div>
-            <div
-                className={`flex justify-center h-screen items-center bg-gradient-to-b from-[#fffdef] relative ${
-                seconds <= 5 ? "text-red-500" : "text-black"
-                }`}
-            >
-                <div className="flex w-full">
-                    <div className="flex flex-col items-center justify-center w-full">
-                        <div className="flex mb-8 text-4xl font-bold text-center w-fit">
-                        안녕하세요 / 안녕히계세요
+        <div className="flex justify-center h-screen items-center bg-gradient-to-b from-[#fffdef] relative">
+            <div className="flex flex-col items-center justify-center">
+                <div className="border-[1px] border-[#666666] rounded-xl">
+                    <img src="/images/hoyeon_hi.png" alt="hoyeon_hi" className="w-[500px]" />
+                </div>
+                <div className="flex p-5 text-[30px] font-semibold">안녕하세요 / 안녕히 계세요</div>
+                <div className="flex text-center text-[18px] font-bold">오른 손바닥으로 주먹을 쥔 왼 팔을 <br />
+                    쓸어내린 다음, 두 주먹을 쥐고 <br />
+                    동시에 아래로 내립니다.
+                </div>
+            </div>
+            <div className="flex border-[1px] border-[#666666] rounded-xl ml-5">
+                <div id="webcam" className="relative">
+                    {error ? (
+                        <div className="p-4 text-center text-red-500">{error}</div>
+                    ) : (
+                        <div className="relative">
+                            <video
+                                ref={videoRef}
+                                className="rounded-lg shadow-lg"
+                                style={{
+                                width: "1100px",
+                                height: "1000px",
+                                visibility: "hidden",
+                                position: "absolute",
+                                }}
+                            />
+                            <canvas
+                                ref={canvasRef}
+                                className="rounded-lg shadow-lg"
+                                width={800}
+                                height={600}
+                            />
                         </div>
-
-                        <div className="flex">
-                            <button
-                                className="font-semibold px-5 py-1 text-[20px] text-white transition-colors bg-yellow-500 rounded-lg hover:bg-yellow-400"
-                                onClick={handleStart}
-                            >
-                                시작하기
-                            </button>
-
-                            <button
-                                className="font-semibold px-5 py-1 text-[20px] text-white transition-colors bg-red-500 rounded-lg hover:bg-red-400 ml-4"
-                                onClick={handleStop}
-                            >
-                                멈추기
-                            </button>
-
-                            <div className="flex items-center ml-5">
-                                <GiAlarmClock className="size-11" />
-                                <div id="second" className="ml-2 text-2xl">
-                                    {seconds}초
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="webcam" className="relative mt-11">
-                            {error ? (
-                                <div className="p-4 text-center text-red-500">{error}</div>
-                            ) : (
-                                <div className="relative">
-                                    <video
-                                        ref={videoRef}
-                                        className="rounded-lg shadow-lg"
-                                        style={{
-                                        width: "800px",
-                                        height: "600px",
-                                        visibility: "hidden",
-                                        position: "absolute",
-                                        }}
-                                    />
-                                    <canvas
-                                        ref={canvasRef}
-                                        className="rounded-lg shadow-lg"
-                                        width={800}
-                                        height={600}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

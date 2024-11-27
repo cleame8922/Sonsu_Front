@@ -72,7 +72,7 @@ export default function SignIn() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="container mt-7 w-[4ㅁ0%] p-2 mb-8 ">
+      <div className="container mt-7 w-[40%] p-2 mb-8 ">
         <span className="text-[30px] font-semibold">
           아이디와 비밀번호를
           <br />

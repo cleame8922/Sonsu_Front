@@ -1,134 +1,65 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { GiAlarmClock } from "react-icons/gi";
-import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 export default function Quiz() {
     const [error, setError] = useState(null);
     const [seconds, setSeconds] = useState(10); // 타이머 초기 값 10초
     const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 상태
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const streamRef = useRef(null);
-    const handsRef = useRef(null);
-    const cameraRef = useRef(null);
+    const [question, setQuestion] = useState(null);
+    const [videoSrc, setVideoSrc] = useState("http://localhost:5001/video_feed");
+    const [isVideoPlaying, setIsVideoPlaying] = useState(true); // 비디오 상태 관리
 
-    useEffect(() => {
-        const startWebcam = async () => {
+    // 게임 문제를 가져오는 함수
+    const getQuestion = async () => {
         try {
-            const userMedia = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            });
-            streamRef.current = userMedia;
-            if (videoRef.current) {
-            videoRef.current.srcObject = userMedia;
+            const response = await fetch('http://localhost:5001/get_question');
+            if (!response.ok) {
+                throw new Error('문제를 가져오는 데 실패했습니다.');
             }
-            initializeHandDetection();
+            const data = await response.json();
+            setQuestion(data.question);
         } catch (err) {
-            setError("웹캠을 시작할 수 없습니다.");
-            console.error("웹캠 에러:", err);
+            setError(`문제를 가져오는 중 오류가 발생했습니다: ${err.message}`);
+            console.error("문제 가져오기 오류:", err);
         }
-        };
-
-        const initializeHandDetection = () => {
-        handsRef.current = new Hands({
-            locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-            },
-        });
-
-        handsRef.current.setOptions({
-            maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
-
-        handsRef.current.onResults(onResults);
-
-        if (videoRef.current) {
-            cameraRef.current = new Camera(videoRef.current, {
-            onFrame: async () => {
-                await handsRef.current.send({ image: videoRef.current });
-            },
-            width: 800,
-            height: 600,
-            });
-            cameraRef.current.start();
-        }
-        };
-
-        startWebcam();
-
-        return () => {
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop());
-        }
-        if (cameraRef.current) {
-            cameraRef.current.stop();
-        }
-        };
-    }, []);
-
-    const onResults = (results) => {
-        const canvasCtx = canvasRef.current.getContext("2d");
-        canvasCtx.save();
-        canvasCtx.clearRect(
-        0,
-        0,
-        canvasRef.current.width,
-        canvasRef.current.height
-        );
-        canvasCtx.drawImage(
-        results.image,
-        0,
-        0,
-        canvasRef.current.width,
-        canvasRef.current.height
-        );
-
-        if (results.multiHandLandmarks) {
-        for (const landmarks of results.multiHandLandmarks) {
-            drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, {
-            color: "#00FF00",
-            lineWidth: 5,
-            });
-            drawLandmarks(canvasCtx, landmarks, {
-            color: "#FF0000",
-            lineWidth: 2,
-            });
-        }
-        }
-        canvasCtx.restore();
     };
 
     useEffect(() => {
-        if (isTimerRunning && seconds > 0) {
-        const timer = setInterval(() => {
-            setSeconds((prevSeconds) => {
-            if (prevSeconds > 1) {
-                return prevSeconds - 1;
-            } else {
-                clearInterval(timer);
-                return 0;
-            }
-            });
-        }, 1000);
+        getQuestion();
+    }, []);
 
-        return () => clearInterval(timer);
+    // 타이머가 실행되는 동안 주기적으로 시간을 업데이트
+    useEffect(() => {
+        let timer;
+        if (isTimerRunning) {
+            timer = setInterval(() => {
+                setSeconds((prev) => prev - 1);
+            }, 1000);
+        } else {
+            clearInterval(timer);
         }
-    }, [isTimerRunning, seconds]);
+
+        return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
+    }, [isTimerRunning]);
+
+    useEffect(() => {
+        if (seconds === 0 && isTimerRunning) {
+            setIsTimerRunning(false); // 타이머가 끝나면 멈추기
+            setIsVideoPlaying(false); // 비디오 멈추기
+        }
+    }, [seconds, isTimerRunning]);
 
     const handleStart = () => {
         if (!isTimerRunning) {
-        setIsTimerRunning(true);
+            setIsTimerRunning(true);
+            setIsVideoPlaying(true); // 타이머 시작 시 비디오 다시 시작
         }
     };
 
     const handleStop = () => {
         if (isTimerRunning) {
-        setIsTimerRunning(false);
+            setIsTimerRunning(false);
+            setIsVideoPlaying(false); // 타이머 멈추면 비디오 멈추기
         }
     };
 
@@ -136,13 +67,13 @@ export default function Quiz() {
         <div>
             <div
                 className={`flex justify-center h-screen items-center bg-gradient-to-b from-[#fffdef] relative ${
-                seconds <= 5 ? "text-red-500" : "text-black"
+                    seconds <= 5 ? "text-red-500" : "text-black"
                 }`}
             >
                 <div className="flex w-full">
                     <div className="flex flex-col items-center justify-center w-full">
                         <div className="flex mb-8 text-4xl font-bold text-center w-fit">
-                        안녕하세요 / 안녕히계세요
+                            안녕하세요 / 안녕히계세요
                         </div>
 
                         <div className="flex">
@@ -168,30 +99,27 @@ export default function Quiz() {
                             </div>
                         </div>
 
-                        <div id="webcam" className="relative mt-11">
-                            {error ? (
-                                <div className="p-4 text-center text-red-500">{error}</div>
-                            ) : (
-                                <div className="relative">
-                                    <video
-                                        ref={videoRef}
+                        {seconds === 0 ? (
+                            <h2 className="mt-4 text-xl text-red-500">시간이 다 되었습니다!</h2>
+                        ) : (
+                            <h1 className="mt-4">현재 문제: {question}</h1>
+                        )}
+
+                        {error ? (
+                            <div className="mt-4 text-red-500">{error}</div>
+                        ) : (
+                            <div className="mt-4">
+                                {/* 비디오 스트리밍을 img 태그로 표시 */}
+                                {isVideoPlaying && (
+                                    <img
+                                        src={videoSrc}
+                                        alt="Video Stream"
                                         className="rounded-lg shadow-lg"
-                                        style={{
-                                        width: "800px",
-                                        height: "600px",
-                                        visibility: "hidden",
-                                        position: "absolute",
-                                        }}
+                                        style={{ width: "800px", height: "600px" }}
                                     />
-                                    <canvas
-                                        ref={canvasRef}
-                                        className="rounded-lg shadow-lg"
-                                        width={800}
-                                        height={600}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

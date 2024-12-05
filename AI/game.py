@@ -93,19 +93,12 @@ def process_frame():
                             else:
                                 game_result = "틀렸습니다!"
 
-                # 이미지에 텍스트 추가
-                img_pil = Image.fromarray(img)
-                draw = ImageDraw.Draw(img_pil)
-                # draw.text((10, 30), f'동작: {this_action}', font=font, fill=(255, 255, 255))
-                if game_result:
-                    draw.text((10, 80), game_result, font=font, fill=(0, 255, 0) if "정답" in game_result else (255, 0, 0))
-                img = np.array(img_pil)
 
         # 프레임 반환
         _, buffer = cv2.imencode('.jpg', img)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
     cap.release()
 
@@ -113,6 +106,16 @@ def process_frame():
 @app.route('/')
 def index():
     return render_template('game.html')
+
+# 게임 상태 가져오기
+@app.route('/get_game_info', methods=['GET'])
+def get_game_info():
+    global last_action, game_result
+    return jsonify({
+        'last_action': last_action,
+        'game_result': game_result
+    })
+
 
 @app.route('/video_feed')
 def video_feed():
@@ -131,6 +134,7 @@ def get_question():
     current_question = random.choice(actions)
     game_result = None
     return jsonify({"question": current_question})
+
 
 if __name__ == '__main__':
     app.run(

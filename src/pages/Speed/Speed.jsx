@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { GiAlarmClock } from "react-icons/gi";
 
-export default function Quiz() {
+export default function Speed() {
     const [error, setError] = useState(null);
     const [seconds, setSeconds] = useState(10); // 타이머 초기 값 10초
     const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 상태
     const [question, setQuestion] = useState(null);
     const [videoSrc, setVideoSrc] = useState("http://localhost:5001/video_feed");
     const [isVideoPlaying, setIsVideoPlaying] = useState(true); // 비디오 상태 관리
+    const [gameState, setGameState] = useState({ current_question: null, game_result: null, last_action: null });
 
     // 게임 문제를 가져오는 함수
     const getQuestion = async () => {
@@ -24,8 +25,28 @@ export default function Quiz() {
         }
     };
 
+    // 게임 상태 가져오기
+    const getGameInfo = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/get_game_info');
+            if (!response.ok) {
+                throw new Error('게임 정보를 가져오는 데 실패했습니다.');
+            }
+            const data = await response.json();
+            setGameState(data); // 서버에서 가져온 게임 상태 업데이트
+        } catch (err) {
+            setError(`게임 정보를 가져오는 중 오류가 발생했습니다: ${err.message}`);
+            console.error("게임 정보 가져오기 오류:", err);
+        }
+    };
+
     useEffect(() => {
-        getQuestion();
+        getQuestion(); // 컴포넌트가 마운트될 때 처음 문제를 가져옵니다.
+        const interval = setInterval(() => {
+            getGameInfo(); // 주기적으로 게임 상태를 가져옵니다.
+        }, 1000); // 1초마다
+
+        return () => clearInterval(interval); // 컴포넌트 언마운트 시 주기적인 상태 업데이트 정리
     }, []);
 
     // 타이머가 실행되는 동안 주기적으로 시간을 업데이트
@@ -63,6 +84,11 @@ export default function Quiz() {
         }
     };
 
+    // 새로운 문제 생성
+    const handleNewQuestion = () => {
+        getQuestion(); // 새 문제를 가져옵니다.
+    };
+
     return (
         <div>
             <div
@@ -91,6 +117,13 @@ export default function Quiz() {
                                 멈추기
                             </button>
 
+                            <button
+                                className="font-semibold px-5 py-1 text-[20px] text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-400 ml-4"
+                                onClick={handleNewQuestion}
+                            >
+                                문제 새로 생성하기
+                            </button>
+
                             <div className="flex items-center ml-5">
                                 <GiAlarmClock className="size-11" />
                                 <div id="second" className="ml-2 text-2xl">
@@ -109,6 +142,12 @@ export default function Quiz() {
                             <div className="mt-4 text-red-500">{error}</div>
                         ) : (
                             <div className="mt-4">
+                                {/* 게임 상태 정보 표시 */}
+                                <div className="mt-4 text-xl">
+                                    <p><strong>동작:</strong> {gameState.last_action || '대기 중...'}</p>
+                                    <p><strong>결과:</strong> {gameState.game_result || '결과 대기 중...'}</p>
+                                </div>
+                                
                                 {/* 비디오 스트리밍을 img 태그로 표시 */}
                                 {isVideoPlaying && (
                                     <img

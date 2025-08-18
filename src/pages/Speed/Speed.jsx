@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { GiAlarmClock } from "react-icons/gi";
 
-export default function Quiz() {
+export default function Speed() {
     const [error, setError] = useState(null);
     const [seconds, setSeconds] = useState(10); // 타이머 초기 값 10초
     const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머가 실행 중인지 상태

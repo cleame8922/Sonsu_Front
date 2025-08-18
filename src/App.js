@@ -4,7 +4,7 @@ import { useState } from "react";
 import Nav from "./components/Nav";
 import Main from "./pages/Main";
 import SignUp from "./pages/SignUp";
-import SignIn from "./pages/SignIn";
+import Login from "./pages/Login";
 import Quiz from "./pages/Quiz/Quiz";
 import QuizInfo from "./pages/Quiz/QuizInfo";
 import QuizStart from "./pages/Quiz/QuizStart";
@@ -31,7 +31,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/SignUp" element={<SignUp />} />
-            <Route path="/SignIn" element={<SignIn />} />
+            <Route path="/Login" element={<Login />} />
             <Route path="/Quiz" element={<Quiz />} />
             <Route path="/QuizInfo" element={<QuizInfo />} />
             <Route path="/QuizStart" element={<QuizStart />} />

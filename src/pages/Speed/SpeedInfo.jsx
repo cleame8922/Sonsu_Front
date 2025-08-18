@@ -1,6 +1,4 @@
 import React from "react";
-import { CgShapeCircle } from "react-icons/cg";
-import { IoClose } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
 
 export default function SpeedInfo() {

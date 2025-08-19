@@ -1,34 +1,42 @@
 import React from "react";
-import { CgShapeCircle } from "react-icons/cg";
-import { IoClose } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
 
 export default function SpeedStart() {
   return (
-    <div>
-      <div className="flex justify-center h-screen items-centers bg-gradient-to-b from-[#fffdef]">
-        <div className="flex w-[100%]">
-          <div className="flex justify-center items-center w-[100%]">
-            <img src="/images/Vv.png" alt="report" className="flex w-[450px]" />
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex w-fit text-center font-bold text-[50px]">
-                <div className="">
-                  오늘 배운 수어를
-                  <div className="flex mt-[30px]">
-                    <div className="animate-bounce text-[60px]">
-                      스피드 게임
-                    </div>
-                    을 통해 복습해 보세요
-                  </div>
-                </div>
-              </div>
-              <NavLink
-                to="/SpeedInfo"
-                className="shadow-2xl mt-[70px] px-10 py-3 text-[30px] font-bold text-white transition-colors bg-yellow-500 rounded-lg hover:bg-yellow-400"
-              >
-                시작하기
-              </NavLink>
-            </div>
+    <div className="relative flex flex-col items-center w-full min-h-screen">
+      {/* 제목: 화면 맨 위 중앙 고정 */}
+      <div className="absolute flex justify-center w-full mt-5 top-24">
+        <img
+          src="images/SpeedTitle.png"
+          alt="스피드 타이틀"
+          className="h-fit w-fit"
+        />
+      </div>
+
+      <div className="flex h-[250px]"></div>
+
+      <div className="z-10 flex flex-col items-center">
+        <div className="flex text-center text-[24px] font-medium">스피드 퀴즈를 위해 <br /> 카메라를 준비해주세요.</div>
+        
+        <button className="flex justify-center w-fit px-12 py-3 mt-6 rounded-3xl bg-gradient-to-b from-[#fff3af] to-[#ffe553]">
+          START
+        </button>
+      </div>
+
+      {/* 원: 화면 맨 아래 중앙 */}
+      <div className="absolute bottom-0 flex justify-center w-full">
+        <div className="relative flex justify-center">
+          <img
+            src="images/SpeedEllipse.png"
+            alt="원"
+            className="lg:w-[75%] w-[90%]"
+          />
+          
+          <div className="absolute bottom-0 flex flex-col items-center">
+            <img
+            src="images/sonsu.png"
+            alt="원"
+            className="lg:w-[70%] w-[45%]"
+          />
           </div>
         </div>
       </div>

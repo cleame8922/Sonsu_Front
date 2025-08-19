@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 
 import Nav from "./components/Nav";
-import Main from "./pages/Main";
+import Main from "./pages/Main/Main";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Quiz from "./pages/Quiz/Quiz";
@@ -13,6 +13,7 @@ import SpeedInfo from "./pages/Speed/SpeedInfo";
 import SpeedStart from "./pages/Speed/SpeedStart";
 import MyPage from "./pages/MyPage";
 import Study from "./pages/Study/Study";
+import Main1 from "./pages/Main/Main1";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ function App() {
     <div className="flex App">
       <BrowserRouter>
         {/* Sidebar */}
-        <Nav toggleSidebar={toggleSidebar} isOpen={isOpen} />
+        {/* <Nav toggleSidebar={toggleSidebar} isOpen={isOpen} /> */}
         {/* Main Content Area */}
         <div className="flex-1">
           <Routes>

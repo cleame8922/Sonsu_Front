@@ -13,7 +13,7 @@ import SpeedInfo from "./pages/Speed/SpeedInfo";
 import SpeedStart from "./pages/Speed/SpeedStart";
 import MyPage from "./pages/MyPage";
 import Study from "./pages/Study/Study";
-import Main1 from "./pages/Main/Main1";
+import AdminMain from "./pages/Admin/Main/AdminMain";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +41,7 @@ function App() {
             <Route path="/SpeedStart" element={<SpeedStart />} />
             <Route path="/MyPage" element={<MyPage />} />
             <Route path="/Study" element={<Study />} />
+            <Route path="/AdminMain" element={<AdminMain />} />
           </Routes>
         </div>
       </BrowserRouter>

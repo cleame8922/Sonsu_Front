@@ -2,9 +2,13 @@ import React from "react";
 
 export default function Main1() {
   return (
-    <div className="flex flex-col mt-40 justify-center">
+    <div className="flex flex-col justify-center ">
+      <div className="flex items-center py-12 px-40">
+        <img src="/images/logo.png" className="w-20" alt="" />
+        <div className="text-[25px] font-black text-[#222]">SONSU</div>
+      </div>
       {/* 상단 텍스트 */}
-      <div className="items-center flex flex-col ">
+      <div className="items-center flex flex-col mt-6">
         <div className="text-[#3c3c3c] text-[25px]">
           손으로 이어지는 새로운 소통
         </div>
@@ -18,7 +22,7 @@ export default function Main1() {
       </div>
 
       {/* 목업 이미지 (고정 배치) */}
-      <div className="flex justify-center items-end mt-20 space-x-[30px]">
+      <div className="flex justify-center mt-20 space-x-[30px]">
         {/* <img
           src="/images/Mockup/Bookmark.png"
           className="w-[300px] h-auto rotate-[-20deg] drop-shadow-2xl translate-y-[240px]"
@@ -48,6 +52,7 @@ export default function Main1() {
           className="w-[300px] h-auto rotate-[20deg] drop-shadow-2xl translate-y-[240px]"
         /> */}
       </div>
+      <div className="h-[280px]"></div>
     </div>
   );
 }

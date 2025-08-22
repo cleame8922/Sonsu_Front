@@ -13,21 +13,11 @@ export default function Main() {
         background: "linear-gradient(180deg, #FFF 0%, #FFF7DF 100%)",
       }}
     >
-      <div>
-        <Main1 />
-      </div>
-      <div>
-        <Main2 />
-      </div>
-      <div>
-        <Main3 />
-      </div>
-      <div>
-        <Main4 />
-      </div>
-      <div>
-        <Main5 />
-      </div>
+      <Main1 />
+      <Main2 />
+      <Main3 />
+      <Main4 />
+      <Main5 />
     </div>
   );
 }

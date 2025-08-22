@@ -23,10 +23,6 @@ export default function Main1() {
 
       {/* 목업 이미지 (고정 배치) */}
       <div className="flex justify-center mt-20 space-x-[30px]">
-        {/* <img
-          src="/images/Mockup/Bookmark.png"
-          className="w-[300px] h-auto rotate-[-20deg] drop-shadow-2xl translate-y-[240px]"
-        /> */}
         <img
           src="/images/Mockup/Attendance.png"
           className="w-[300px] h-auto rotate-[-15deg] drop-shadow-2xl translate-y-[100px]"

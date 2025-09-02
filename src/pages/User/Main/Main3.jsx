@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Main3() {
   return (
-    <div className="px-32 h-screen mt-20">
+    <div className="h-screen px-32 mt-20">
       {/* title */}
       <div className="flex flex-col">
         <div className="text-[32px] font-light">수어, 이제 어렵지 않아요</div>
@@ -23,12 +23,12 @@ export default function Main3() {
       {/* 설명 */}
       <div className="relative ml-60 mt-28">
         <img
-          src="./images/Mockup/Main.png"
+          src="./assets/images/Mockup/Main.png"
           className="w-[280px] absolute top-40 z-10"
           alt=""
         />
         <img
-          src="./images/Mockup/MainScroll.png"
+          src="./assets/images/Mockup/MainScroll.png"
           className="w-[400px] absolute left-48 z-10"
           alt=""
         />

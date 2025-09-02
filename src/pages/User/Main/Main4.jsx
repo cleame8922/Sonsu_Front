@@ -6,37 +6,37 @@ export default function Main4() {
     {
       title: "STEP1",
       desc: "내가 현재 진행중인\n수어 학습을 선택합니다.",
-      img: "./images/Main/Step1.png",
+      img: "./assets/images/Main/Step1.png",
       width: 450,
     },
     {
       title: "STEP2",
       desc: "3D아바타의 시연 동작을 보고,\n충분히 따라해보며 익힙니다.",
-      img: "./images/Main/Step2.png",
+      img: "./assets/images/Main/Step2.png",
       width: 300,
     },
     {
       title: "STEP3",
       desc: "카메라에 비춘 나의 모습을 보며\n스스로 수어를 익힙니다.",
-      img: "./images/Main/Step3.png",
+      img: "./assets/images/Main/Step3.png",
       width: 300,
     },
     {
       title: "STEP4",
       desc: "오늘 배운 수어를\nOX퀴즈, 스피드게임을 통해\n재미있게 복습!",
-      img: "./images/Main/Step4.png",
+      img: "./assets/images/Main/Step4.png",
       width: 500,
     },
     {
       title: "STEP5",
       desc: "마이페이지에서 틀렸던 수어만\n골라서 다시 볼 수 있어요!",
-      img: "./images/Main/Step5.png",
+      img: "./assets/images/Main/Step5.png",
       width: 300,
     },
     {
       title: "STEP6",
       desc: "주간 랭킹을 통해 나의 수준을 확인하고,\n주간 리포트를 통해 한 주간의 학습을 돌아봅니다.",
-      img: "./images/Main/Step6.png",
+      img: "./assets/images/Main/Step6.png",
       width: 300,
     },
   ];
@@ -62,11 +62,11 @@ export default function Main4() {
       </div>
 
       {/* 설명 스크롤 */}
-      <div className="relative overflow-x-auto py-20 px-24">
+      <div className="relative px-24 py-20 overflow-x-auto">
         <div className="absolute top-24 bg-[#F3C11B] w-10 h-10 rounded-full"></div>
         {/* dashed line */}
         <div
-          className="absolute top-28 h-2"
+          className="absolute h-2 top-28"
           style={{
             width: steps.reduce((acc, s) => acc + s.width + 208, 0), // 각 step 폭 + space-x-52
             backgroundImage:
@@ -76,7 +76,7 @@ export default function Main4() {
 
         <div className="flex space-x-52 flex-nowrap">
           {steps.map((step, idx) => (
-            <div key={idx} className="flex-shrink-0 flex flex-col items-center">
+            <div key={idx} className="flex flex-col items-center flex-shrink-0">
               <div className="bg-[#F3C11B] w-fit px-4 py-2 rounded-md text-white font-bold text-[30px] z-10">
                 {step.title}
               </div>

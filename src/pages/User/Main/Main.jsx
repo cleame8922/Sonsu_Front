@@ -4,6 +4,7 @@ import Main2 from "./Main2";
 import Main3 from "./Main3";
 import Main4 from "./Main4";
 import Main5 from "./Main5";
+import Main6 from "./Main6";
 
 export default function Main() {
   return (
@@ -18,6 +19,7 @@ export default function Main() {
       <Main3 />
       <Main4 />
       <Main5 />
+      <Main6 />
     </div>
   );
 }

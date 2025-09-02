@@ -25,11 +25,11 @@ export default function AdminMain1() {
           가입하기
         </div>
       </div>
-      <img
+      {/* <img
         src="/images/Admin/Main/AdminLogo.png"
         className="w-[900px] opacity-30 relative bottom-[300px] left-[1400px]"
         alt=""
-      />
+      /> */}
     </div>
   );
 }

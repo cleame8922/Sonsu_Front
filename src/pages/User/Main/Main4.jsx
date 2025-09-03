@@ -1,5 +1,4 @@
 import React from "react";
-import { useRef } from "react";
 
 export default function Main4() {
   const steps = [

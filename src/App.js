@@ -13,6 +13,7 @@ import Study from "./pages/User/Study/Study";
 import AdminMain from "./pages/Admin/Main/AdminMain";
 import AdminNoGroup from './pages/Admin/Member/AdminNoGroup';
 import AdminGroupAdd from './pages/Admin/Member/AdminGroupAdd';
+import AdminStudent from './pages/Admin/Member/AdminStudent';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/AdminMain" element={<AdminMain />} />
             <Route path="/AdminNoGroup" element={<AdminNoGroup />} />
             <Route path="/AdminGroupAdd" element={<AdminGroupAdd />} />
+            <Route path="/AdminStudent" element={<AdminStudent />} />
           </Routes>
         </div>
       </BrowserRouter>

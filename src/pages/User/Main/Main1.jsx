@@ -50,8 +50,6 @@ export default function Main1() {
         )}
       </div>
 
-
-      <div className="h-[280px]"></div>
     </div>
   );
 }

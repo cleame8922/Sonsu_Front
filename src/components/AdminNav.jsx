@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
 export default function AdminNav() {
-  const [selected, setSelected] = useState('커리큘럼 관리');
+  const [selected, setSelected] = useState("커리큘럼 관리");
   const navigate = useNavigate();
 
   const handleClick = (menu) => {
     setSelected(menu);
-    if (menu === '커리큘럼 관리') {
-      navigate('/adminnogroup'); // 원하는 경로로 이동
-    }if (menu === '수강그룹 관리') {
-      navigate('/adminnogroup'); // 원하는 경로로 이동
-    }if (menu === '수강생 관리') {
-      navigate('/adminnogroup'); // 원하는 경로로 이동
+    if (menu === "커리큘럼 관리") {
+      navigate("/CurriMain"); // 원하는 경로로 이동
+    }
+    if (menu === "수강그룹 관리") {
+      navigate("/adminnogroup"); // 원하는 경로로 이동
+    }
+    if (menu === "수강생 관리") {
+      navigate("/adminnogroup"); // 원하는 경로로 이동
     }
   };
 
-  const menus = ['커리큘럼 관리', '수강그룹 관리', '수강생 관리'];
+  const menus = ["커리큘럼 관리", "수강그룹 관리", "수강생 관리"];
 
   return (
-    <div className='flex flex-col w-[20%] mx-14 mt-3'>
-      <div className='flex flex-col my-5'>
+    <div className="flex flex-col w-[20%] mx-14 ">
+      <div className="flex flex-col my-5">
         <img
           src="/assets/images/Admin/Member/group.png"
           alt="group"
@@ -33,8 +35,8 @@ export default function AdminNav() {
             key={menu}
             className={`flex my-5 fontBold cursor-pointer ${
               selected === menu
-                ? 'text-white text-[23px]'
-                : 'text-[#333] text-[20px]'
+                ? "text-white text-[23px]"
+                : "text-[#333] text-[20px]"
             }`}
             onClick={() => handleClick(menu)}
           >
@@ -43,8 +45,8 @@ export default function AdminNav() {
         ))}
       </div>
 
-      <div className='flex h-full items-end pb-12'>
-        <FaUserCircle size={53} className='text-[#555552] rounded-3xl' />
+      <div className="flex h-full items-end pb-12">
+        <FaUserCircle size={53} className="text-[#555552] rounded-3xl" />
       </div>
     </div>
   );

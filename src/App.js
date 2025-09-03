@@ -11,12 +11,13 @@ import SpeedStart from "./pages/User/Speed/SpeedStart";
 import MyPage from "./pages/User/MyPage";
 import Study from "./pages/User/Study/Study";
 import AdminMain from "./pages/Admin/Main/AdminMain";
-import AdminNoGroup from './pages/Admin/Member/AdminNoGroup';
-import AdminGroupAdd from './pages/Admin/Member/AdminGroupAdd';
-import AdminStudent from './pages/Admin/Member/AdminStudent';
+import AdminNoGroup from "./pages/Admin/Member/AdminNoGroup";
+import AdminGroupAdd from "./pages/Admin/Member/AdminGroupAdd";
+import AdminStudent from "./pages/Admin/Member/AdminStudent";
+// 커리큘럼
+import CurriMain from "./pages/Admin/Curriculum/CurriMain";
 
 function App() {
-
   return (
     <div className="flex App">
       <BrowserRouter>
@@ -37,6 +38,7 @@ function App() {
             <Route path="/AdminNoGroup" element={<AdminNoGroup />} />
             <Route path="/AdminGroupAdd" element={<AdminGroupAdd />} />
             <Route path="/AdminStudent" element={<AdminStudent />} />
+            <Route path="/CurriMain" element={<CurriMain />} />
           </Routes>
         </div>
       </BrowserRouter>

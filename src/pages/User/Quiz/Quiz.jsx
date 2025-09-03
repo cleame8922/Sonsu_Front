@@ -3,7 +3,6 @@ import { CgShapeCircle } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
 
 export default function Quiz() {
-    const [showAnimation, setShowAnimation] = useState(false); // 애니메이션 상태 추가
     const [showCorrectModal, setShowCorrectModal] = useState(false); // 정답 모달 상태
     const [showIncorrectModal, setShowIncorrectModal] = useState(false); // 오답 모달 상태
 

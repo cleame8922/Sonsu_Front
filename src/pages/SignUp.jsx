@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
 const [id, setId] = useState("");
@@ -29,8 +28,6 @@ const [isName, setIsName] = useState(false);
 const [isPhone, setIsPhone] = useState(false);
 
 const [notAllow, setNotAllow] = useState(true);
-
-const navigate = useNavigate();
 
 const handleId = (e) => {
     setId(e.target.value);

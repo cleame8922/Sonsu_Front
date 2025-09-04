@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import AdminTitle from "../../../components/AdminTitle";
 import AdminNav from "../../../components/AdminNav";
 
-export default function CurriMain() {
+export default function ClassList() {
   const classes = [
     { name: "손수잇다", code: "FE101", desc: "클래스설명" },
     { name: "하이롱", code: "RE201", desc: "클래스설명" },

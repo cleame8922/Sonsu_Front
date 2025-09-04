@@ -14,8 +14,12 @@ import AdminMain from "./pages/Admin/Main/AdminMain";
 import AdminNoGroup from "./pages/Admin/Member/AdminNoGroup";
 import AdminGroupAdd from "./pages/Admin/Member/AdminGroupAdd";
 import AdminStudent from "./pages/Admin/Member/AdminStudent";
-// 커리큘럼
-import CurriMain from "./pages/Admin/Curriculum/CurriMain";
+
+import ClassList from "./pages/Admin/Class/ClassList";
+
+// 커리 수정
+import Curri_Part from "./pages/Admin/Curriculum/Curri_Part";
+import Curri_Step from "./pages/Admin/Curriculum/Curri_Step";
 
 function App() {
   return (
@@ -38,7 +42,9 @@ function App() {
             <Route path="/AdminNoGroup" element={<AdminNoGroup />} />
             <Route path="/AdminGroupAdd" element={<AdminGroupAdd />} />
             <Route path="/AdminStudent" element={<AdminStudent />} />
-            <Route path="/CurriMain" element={<CurriMain />} />
+            <Route path="/ClassList" element={<ClassList />} />
+            <Route path="/Curri_Part" element={<Curri_Part />} />
+            <Route path="/Curri_Step" element={<Curri_Step />} />
           </Routes>
         </div>
       </BrowserRouter>

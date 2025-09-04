@@ -1,35 +1,40 @@
 import React from "react";
+import AdminTitle from "../../../components/AdminTitle";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminMain1() {
-  return (
-    <div className="h-screen bg-gradient-to-b from-[#EAF3FF] to-white relative overflow-hidden">
-      <div className="flex items-center py-12 px-40">
-        <img src="/images/logo.png" className="w-20" alt="" />
-        <div className="text-[25px] font-black text-[#222]">SONSU</div>
-      </div>
+  const navigate = useNavigate();
 
-      <div className="flex flex-col items-center">
-        <div className="flex items-center space-x-3">
-          <img src="/images/logo.png" className="w-20" alt="" />
-          <div className="text-[32px] font-bold text-[#1974F3]">
-            SONSU CLASS
-          </div>
+  return (
+    <div className="h-screen relative">
+      <AdminTitle />
+      <div className="flex flex-col items-center justify-center h-screen mt-[-150px]">
+        <div className="text-[80px] font-semibold text-[#333]">Your Pace</div>
+        <div className="text-[80px] font-semibold text-[#333] mt-[-30px]">
+          Your Space
         </div>
-        <div className="mt-10 text-[50px] whitespace-pre-line text-center font-bold">
-          강사와 관리자를 위한 프리미엄 기능,{`\n`}이제 한곳에서!
-        </div>
-        <div className="mt-8 text-[24px] ">
-          효율적인 수어 교육에 필요한 모든 도구를 제공합니다.
-        </div>
-        <div className="bg-white text-[24px] px-8 py-2 rounded-full shadow mt-20">
-          가입하기
-        </div>
+        <button
+          className="bg-[#e7e7e7] rounded-[15px] text-[#222] text-[24px] px-6 py-2 mt-10"
+          onClick={() => navigate("/ClassList")}
+        >
+          SONSU CLASS
+        </button>
       </div>
-      {/* <img
-        src="/images/Admin/Main/AdminLogo.png"
-        className="w-[900px] opacity-30 relative bottom-[300px] left-[1400px]"
+      <img
+        src="/assets/images/Admin/Main/AdminMain1_1.png"
         alt=""
-      /> */}
+        className="w-[400px] absolute top-24 left-36"
+      />
+      <img
+        src="/assets/images/Admin/Main/AdminMain1_2.png"
+        alt=""
+        className="w-[400px] absolute top-60 right-[280px]"
+      />
+      <img
+        src="/assets/images/Admin/Main/AdminMain1_3.png"
+        alt=""
+        className="w-[400px] absolute top-[600px] right-[240px]"
+      />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import AdminTitle from "../../../components/AdminTitle";
 import AdminNav from "../../../components/AdminNav";
 
 export default function ClassList() {
+  const navigate = useNavigate();
+
   const classes = [
     { name: "손수잇다", code: "FE101", desc: "클래스설명" },
     { name: "하이롱", code: "RE201", desc: "클래스설명" },
@@ -28,7 +30,7 @@ export default function ClassList() {
   const [sortType, setSortType] = useState("latest");
   const [search, setSearch] = useState("");
 
-  // 클래스별 색상 고정 (처음 렌더링 시에만 랜덤 배정)
+  // 클래스별 색상 고정
   const [colorMap] = useState(() => {
     const map = {};
     classes.forEach((cls) => {
@@ -95,12 +97,13 @@ export default function ClassList() {
           <div className="flex justify-center overflow-auto mb-10">
             <div className="grid grid-cols-4 gap-10 mt-5">
               {filteredClasses.map((cls) => {
-                const bg = colorMap[cls.code]; // 고정된 색상 사용
+                const bg = colorMap[cls.code];
                 return (
                   <div
                     key={cls.code}
-                    className="rounded-2xl p-6 shadow-md h-[400px] w-[300px]"
+                    className="rounded-2xl p-6 shadow-md h-[400px] w-[300px] cursor-pointer hover:scale-105 transition"
                     style={{ backgroundColor: bg }}
+                    onClick={() => navigate(`/admin/ClassMenu/${cls.code}`)}
                   >
                     <h2 className="text-xl font-bold mb-2">{cls.name}</h2>
                     <p className="text-sm text-gray-600 mb-1"># {cls.code}</p>

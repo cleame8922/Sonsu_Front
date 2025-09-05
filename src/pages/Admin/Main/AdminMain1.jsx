@@ -15,7 +15,7 @@ export default function AdminMain1() {
         </div>
         <button
           className="bg-[#e7e7e7] rounded-[15px] text-[#222] text-[24px] px-6 py-2 mt-10"
-          onClick={() => navigate("/ClassList")}
+          onClick={() => navigate("/admin/ClassList")}
         >
           SONSU CLASS
         </button>

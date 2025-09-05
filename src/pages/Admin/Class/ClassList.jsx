@@ -101,9 +101,13 @@ export default function ClassList() {
                 return (
                   <div
                     key={cls.code}
-                    className="rounded-2xl p-6 shadow-md h-[320px] w-[250px] cursor-pointer hover:scale-105 transition"
+                    className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition"
                     style={{ backgroundColor: bg }}
-                    onClick={() => navigate(`/admin/ClassMenu/${cls.code}`)}
+                    onClick={() =>
+                      navigate(`/admin/ClassMenu/${cls.code}`, {
+                        state: { name: cls.name, desc: cls.desc },
+                      })
+                    }
                   >
                     <h2 className="text-xl font-bold mb-2">{cls.name}</h2>
                     <p className="text-sm text-gray-600 mb-1"># {cls.code}</p>

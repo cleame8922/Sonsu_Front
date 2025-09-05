@@ -9,7 +9,7 @@ export default function AdminNav() {
   const handleClick = (menu) => {
     setSelected(menu);
     if (menu === "커리큘럼 관리") {
-      navigate("/CurriMain"); // 원하는 경로로 이동
+      navigate("/Curri_Part"); // 원하는 경로로 이동
     }
     if (menu === "수강그룹 관리") {
       navigate("/adminnogroup"); // 원하는 경로로 이동

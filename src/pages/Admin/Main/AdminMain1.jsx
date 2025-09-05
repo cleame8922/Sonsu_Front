@@ -23,17 +23,17 @@ export default function AdminMain1() {
       <img
         src="/assets/images/Admin/Main/AdminMain1_1.png"
         alt=""
-        className="w-[400px] absolute top-24 left-36"
+        className="w-[400px] absolute top-24 left-32"
       />
       <img
         src="/assets/images/Admin/Main/AdminMain1_2.png"
         alt=""
-        className="w-[400px] absolute top-60 right-[280px]"
+        className="w-[400px] absolute top-48 right-[200px]"
       />
       <img
         src="/assets/images/Admin/Main/AdminMain1_3.png"
         alt=""
-        className="w-[400px] absolute top-[600px] right-[240px]"
+        className="w-[400px] absolute top-[500px] right-[100px]"
       />
     </div>
   );

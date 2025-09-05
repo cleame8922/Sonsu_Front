@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Main5() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative h-screen">
       {/* 중앙 배경 그라데이션 */}
@@ -28,7 +31,10 @@ export default function Main5() {
           효율적인 수어 교육을 위한 모든 도구를 한곳에 모았습니다.{`\n`}
         </div>
 
-        <div className="bg-gradient-to-b from-[#fff8df] via-[#FFF3CC] to-[#fff8df] px-12 py-2 text-[20px] font-bold mt-20 shadow-xl rounded-full">
+        <div
+          onClick={() => navigate("/admin")}
+          className="bg-gradient-to-b from-[#fff8df] via-[#FFF3CC] to-[#fff8df] px-12 py-2 text-[20px] font-bold mt-20 shadow-xl rounded-full cursor-pointer hover:opacity-80 transition"
+        >
           바로가기
         </div>
       </div>

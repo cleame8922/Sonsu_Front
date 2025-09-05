@@ -54,7 +54,7 @@ export default function ClassList() {
       <div className="flex w-full">
         <AdminNav />
 
-        <div className="flex flex-col mr-10 w-full rounded-3xl bg-[#fafafa] h-[990px]">
+        <div className="flex flex-col mr-10 w-full rounded-3xl bg-[#fafafa] h-[850px]">
           {/* 상단 탭 + 검색 */}
           <div className="flex flex-col items-end mb-6 mr-10 mt-8">
             {/* 검색창 */}
@@ -101,7 +101,7 @@ export default function ClassList() {
                 return (
                   <div
                     key={cls.code}
-                    className="rounded-2xl p-6 shadow-md h-[400px] w-[300px] cursor-pointer hover:scale-105 transition"
+                    className="rounded-2xl p-6 shadow-md h-[320px] w-[250px] cursor-pointer hover:scale-105 transition"
                     style={{ backgroundColor: bg }}
                     onClick={() => navigate(`/admin/ClassMenu/${cls.code}`)}
                   >

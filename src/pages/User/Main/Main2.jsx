@@ -17,7 +17,7 @@ export default function Main2() {
       {/* 말풍선 */}
       <div className="relative mt-32 min-h-[800px] w-[80%] mx-auto">
         {/* #게임처럼_배우는_수어학습 */}
-        <div className="absolute top-0 left-1/3 -translate-x-1/2">
+        <div className="absolute top-0 left-1/4 -translate-x-1/2">
           <div className="shadow-xl w-fit px-20 py-10 rounded-tl-[6rem] rounded-tr-[6rem] rounded-br-[6rem] bg-gradient-to-b from-white/70 to-white/100">
             <div className="text-[#DFAB00] font-bold text-[28px]">
               #게임처럼_배우는_수어학습
@@ -31,7 +31,7 @@ export default function Main2() {
         </div>
 
         {/* #누구나_쉽게_배울수있는_수어 */}
-        <div className="absolute top-[230px] left-2/3 -translate-x-1/3 w-full">
+        <div className="absolute top-[230px] left-2/3 -translate-x-1/3 w-[68%]">
           <div className="shadow-xl w-fit px-20 py-10 rounded-tl-[6rem] rounded-tr-[6rem] rounded-bl-[6rem] bg-gradient-to-b from-white/70 to-white/100">
             <div className="text-[#DFAB00] font-bold text-[28px]">
               #누구나_쉽게_배울수있는_수어
@@ -46,7 +46,7 @@ export default function Main2() {
         </div>
 
         {/* #3D아바타로_직관적_학습 */}
-        <div className="absolute top-[480px] left-[250px] z-12">
+        <div className="absolute top-[480px] left-[220px] z-12">
           <div className="shadow-xl w-fit px-20 py-10 rounded-tl-[6rem] rounded-tr-[6rem] rounded-br-[6rem] bg-gradient-to-b from-white/70 to-white/100">
             <div className="text-[#DFAB00] font-bold text-[28px]">
               #3D아바타로_직관적_학습

@@ -45,7 +45,7 @@ export default function AdminNav() {
         ))}
       </div>
 
-      <div className="flex h-full items-end pb-12">
+      <div className="flex items-end h-full pb-3">
         <FaUserCircle size={53} className="text-[#555552] rounded-3xl" />
       </div>
     </div>

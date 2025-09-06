@@ -5,6 +5,7 @@ import Main3 from "./Main3";
 import Main4 from "./Main4";
 import Main5 from "./Main5";
 import Main6 from "./Main6";
+import Footer from "../../../components/Footer";
 
 export default function Main() {
   return (
@@ -20,6 +21,7 @@ export default function Main() {
       <Main4 />
       <Main5 />
       <Main6 />
+      <Footer />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React from "react";
 import AdminMain1 from "./AdminMain1";
 import AdminMain2 from "./AdminMain2";
 import AdminMain3 from "./AdminMain3";
-import AdminFooter from "./AdminFooter";
+import Footer from "../../../components/Footer";
 
 export default function AdminMain() {
   return (
@@ -10,7 +10,7 @@ export default function AdminMain() {
       <AdminMain1 />
       <AdminMain2 />
       <AdminMain3 />
-      <AdminFooter />
+      <Footer />
     </div>
   );
 }

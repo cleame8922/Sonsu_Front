@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Main5() {
+  const navigate = useNavigate();
+    
   const menus = [
     {
       title: "강의 커리큘럼",
@@ -40,9 +42,7 @@ export default function Main5() {
           {menus.map((menu, idx) => (
             <div
               key={idx}
-              className="flex flex-col items-center mb-20 
-                           transition-transform duration-300 ease-in-out
-                           hover:scale-105 hover:brightness-105 p-4 cursor-pointer"
+              className="flex flex-col items-center p-4 mb-20 transition-transform duration-300 ease-in-out cursor-pointer hover:scale-105 hover:brightness-105"
             >
               <img
                 src={menu.img}
@@ -57,10 +57,11 @@ export default function Main5() {
         </div>
 
         <button
-          className=" px-14 py-3 rounded-full text-[22px] font-semibold text-white
-             bg-[#5A9CD0] shadow-lg hover:bg-[#4a8bbd]
-             transition-all duration-300 ease-in-out
-             hover:shadow-xl hover:scale-105"
+          onClick={() => navigate("/admin")}
+          className="px-14 py-3 rounded-full text-[22px] font-semibold text-white
+                bg-[#5A9CD0] shadow-lg hover:bg-[#4a8bbd]
+                transition-all duration-300 ease-in-out
+                hover:shadow-xl hover:scale-105"
         >
           바로가기 →
         </button>

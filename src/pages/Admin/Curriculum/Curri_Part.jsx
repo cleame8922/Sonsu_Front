@@ -57,15 +57,14 @@ export default function Curri_Part() {
                 <p className="text-[#DBBF63] text-[18px] font-black">SONSU</p>
 
                 {/* 탭 버튼 */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   {["초급", "중급", "고급"].map((tab, index, arr) => (
                     <div key={tab} className="flex items-center">
                       <button
                         onClick={() => setActiveTab(tab)}
-                        className={`font-semibold text-[16px] transition-all px-3 py-1 rounded-full`}
+                        className={`font-semibold text-[16px] transition-all px-1 py-1 rounded-full`}
                         style={{
-                          color:
-                            activeTab === tab ? tabColors[tab] : "text-[#333]",
+                          color: activeTab === tab ? tabColors[tab] : "#333",
                         }}
                       >
                         {tab}

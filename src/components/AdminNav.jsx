@@ -22,12 +22,12 @@ export default function AdminNav() {
   const menus = ["커리큘럼 관리", "수강그룹 관리", "수강생 관리"];
 
   return (
-    <div className="flex flex-col w-[20%] mx-14 ">
+    <div className="flex flex-col w-[16%] mx-14 ">
       <div className="flex flex-col my-5">
         <img
           src="/assets/images/Admin/Member/group.png"
           alt="group"
-          className="flex my-5 w-[120px]"
+          className="flex w-[120px]"
         />
 
         {menus.map((menu) => (

@@ -10,11 +10,14 @@ import SpeedInfo from "../pages/User/Speed/SpeedInfo";
 import SpeedStart from "../pages/User/Speed/SpeedStart";
 import MyPage from "../pages/User/MyPage";
 import Study from "../pages/User/Study/Study";
+import Home from "../pages/User/Home/Home";
+import Classroom_Easy from "../pages/User/Classroom/Classroom_Easy";
 
 export default function User() {
   return (
     <Routes>
       <Route path="/" element={<Main />} />
+      <Route path="/Home" element={<Home />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/quiz" element={<Quiz />} />
@@ -25,6 +28,7 @@ export default function User() {
       <Route path="/speed/start" element={<SpeedStart />} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/study" element={<Study />} />
+      <Route path="/Classroom_Easy" element={<Classroom_Easy />} />
     </Routes>
   );
 }

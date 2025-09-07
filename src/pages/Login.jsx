@@ -73,14 +73,29 @@ const Login = () => {
 
       if (response.status === 200) {
         console.log("로그인 성공:", response.data);
-        // saveToken(response.data.accessToken);
+
+        // 🔥 중요: 토큰을 localStorage에 저장 (주석 해제 및 수정)
+        if (response.data.accessToken) {
+          saveToken(response.data.accessToken);
+          console.log(
+            "토큰이 localStorage에 저장되었습니다:",
+            response.data.accessToken.substring(0, 20) + "..."
+          );
+        }
+
         console.log("로그인한 유저:", response.data.userInfo);
         alert("로그인 성공!");
-        navigate("/"); // 로그인 성공 시 이동
+        navigate("/home"); // 홈 페이지로 이동 (경로 수정)
       }
     } catch (error) {
       console.error("로그인 실패:", error.response || error.message);
-      alert("로그인 실패: 잘못된 아이디 또는 비밀번호입니다.");
+
+      // 더 구체적인 에러 메시지
+      if (error.response?.status === 401) {
+        alert("로그인 실패: 잘못된 아이디 또는 비밀번호입니다.");
+      } else {
+        alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      }
     }
   };
 

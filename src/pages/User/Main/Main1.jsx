@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "react-lottie-player";
+import MainHeader from "./MainHeader";
 
 export default function Main1() {
   const [animationData, setAnimationData] = useState(null);
@@ -14,27 +15,7 @@ export default function Main1() {
 
   return (
     <div className="flex flex-col justify-center relative px-24 py-8">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center ">
-          <img src="assets/images/logo.png" className="w-20" alt="" />
-          <div className="text-[25px] fontBold text-[#222]">SONSU</div>
-        </div>
-        <div className="flex space-x-4">
-          <button
-            className="fontSB text-[#222] hover:text-[#DBBF63] transition-colors"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-          <div className="w-[1px] bg-[#222] self-center h-4"></div>
-          <button
-            className="fontSB text-[#222] rounded-lg hover:text-[#DBBF63] transition-colors"
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </button>
-        </div>
-      </div>
+      <MainHeader />
 
       {/* 상단 텍스트 */}
       <div className="flex flex-col items-center mt-6">

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "../config";
-import { getToken } from "../utils/authStorage";
+import { getToken, removeToken } from "../utils/authStorage";
 
 export default function UserNav() {
   const [selected, setSelected] = useState("");
@@ -22,8 +22,6 @@ export default function UserNav() {
           console.log("토큰이 없습니다.");
           return;
         }
-
-        // console.log("사용 중인 토큰:", token);
 
         const response = await axios.get(`${API_URL}/login/success`, {
           headers: {
@@ -73,8 +71,41 @@ export default function UserNav() {
     고급: "#FF9381",
   };
 
-  const handleSubClick = (sub) => setSelected(sub);
-  const handleUserMenuClick = (item) => console.log(item + " 클릭됨");
+  const handleSubClick = (sub) => {
+    setSelected(sub);
+    if (sub === "초급") navigate("/Classroom/easy");
+    if (sub === "중급") navigate("/Classroom/normal");
+    if (sub === "고급") navigate("/Classroom/hard");
+  };
+
+  const handleUserMenuClick = async (item) => {
+    if (item === "로그아웃") {
+      const confirmLogout = window.confirm("정말 로그아웃 하시겠습니까?");
+      if (!confirmLogout) return;
+
+      try {
+        const token = getToken();
+        const config = token
+          ? {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            }
+          : { withCredentials: true };
+
+        await axios.post(`${API_URL}/logout`, {}, config);
+        console.log("로그아웃 요청 성공");
+      } catch (error) {
+        console.error("로그아웃 중 오류 발생:", error);
+      } finally {
+        removeToken(); // 토큰 삭제
+        setUserInfo(null); // 상태 초기화
+        navigate("/"); // 홈 이동
+      }
+    } else {
+      console.log(item + " 클릭됨");
+      // 나머지 메뉴 클릭 처리
+    }
+  };
 
   return (
     <div className="flex flex-col w-[16%] mx-14 relative overflow-visible">

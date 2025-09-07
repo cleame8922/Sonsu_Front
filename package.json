@@ -10,6 +10,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.11.0",
     "framer-motion": "^12.23.12",
     "keen-slider": "^6.8.6",
     "lottie-react": "^2.4.1",

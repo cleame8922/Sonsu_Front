@@ -28,7 +28,7 @@ export default function User() {
       <Route path="/speed/info" element={<SpeedInfo />} />
       <Route path="/speed/start" element={<SpeedStart />} />
       <Route path="/mypage" element={<MyPage />} />
-      <Route path="/study" element={<Study />} />
+      <Route path="/study/:lessonId" element={<Study />} />
       <Route path="/classroom/:level" element={<Classroom />} />
       <Route path="/classroom/:level/:partId" element={<ClassroomDetail />} />
     </Routes>

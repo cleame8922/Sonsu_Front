@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import UserNav from "../../../components/UserNav";
 import UserTitle from "../../../components/UserTitle";
 import { API_URL } from "../../../config";
+import { getToken } from "../../../utils/authStorage";
 import { FiLock } from "react-icons/fi";
 
 export default function ClassroomDetail() {
@@ -32,12 +33,26 @@ export default function ClassroomDetail() {
       }
     };
 
-    // 유저 진도 불러오기
+    // 유저 진도 불러오기 (앱과 동일한 방식)
     const fetchProgress = async () => {
       try {
-        const res = await axios.get(`${API_URL}/progress/topics`, {
-          withCredentials: true,
-        });
+        const token = getToken();
+
+        if (!token) {
+          console.log("토큰이 없습니다.");
+          return;
+        }
+
+        const res = await axios.post(
+          `${API_URL}/progress/topics`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+          }
+        );
         setProgress(res.data || []);
       } catch (err) {
         console.error("진도 불러오기 실패:", err);
@@ -48,11 +63,64 @@ export default function ClassroomDetail() {
     fetchProgress();
   }, [partId]);
 
-  const isLocked = (index) => index > progress.length;
+  // 앱과 동일한 잠금 로직
+  const isStepLocked = (step, index) => {
+    if (index === 0) return false; // 첫 번째 step은 항상 열려있음
 
-  const handleStepClick = (step) => {
-    if (!isLocked(step.step_number - 1)) {
-      navigate(`/study/${step.lesson_id}`, { state: { step } });
+    // 현재 카테고리의 모든 lessons 가져오기
+    const categoryLessons = steps.filter(
+      (s) => s.lessonCategory_id === step.lessonCategory_id
+    );
+
+    if (categoryLessons.length === 0) return true;
+
+    // 완료된 lessons 계산
+    const completedLessons = progress.filter((p) =>
+      categoryLessons.some(
+        (lesson) => lesson.lesson_id === p.lesson_id && p.status === "completed"
+      )
+    );
+
+    let count = completedLessons.length;
+
+    // 첫 번째 lesson이 완료되지 않았다면 count는 0
+    if (
+      categoryLessons[0] &&
+      !progress.some(
+        (p) =>
+          p.lesson_id === categoryLessons[0].lesson_id &&
+          p.status === "completed"
+      )
+    ) {
+      count = 0;
+    }
+
+    return index > count;
+  };
+
+  // step이 완료되었는지 확인
+  const isStepCompleted = (step) => {
+    return progress.some(
+      (p) => p.lesson_id === step.lesson_id && p.status === "completed"
+    );
+  };
+
+  // 완료된 step 개수 계산
+  const getCompletedStepsCount = () => {
+    return steps.filter((step) => isStepCompleted(step)).length;
+  };
+
+  const handleStepClick = (step, index) => {
+    if (!isStepLocked(step, index)) {
+      navigate(`/study/${step.lesson_id}`, {
+        state: {
+          topic: step,
+          lesson: { id: partId }, // 현재 파트 ID
+          index: index,
+        },
+      });
+    } else {
+      alert("이 강의는 이전 강의를 완료한 후 이용할 수 있습니다.");
     }
   };
 
@@ -67,39 +135,80 @@ export default function ClassroomDetail() {
             <p className="text-[#777] font-semibold text-[20px]">#12345</p>
           </div>
 
+          {/* 진도 표시 */}
+          {/* <div className="mb-4 text-center">
+            <p className="text-lg font-semibold">
+              학습진도:
+              <span className="text-green-600 ml-2">
+                {getCompletedStepsCount()}
+              </span>
+              / {steps.length} 강의
+            </p>
+          </div> */}
+
           <div
             className={`px-10 py-8 rounded-[40px] h-[85%] overflow-y-auto`}
             style={{ backgroundColor: levelBgColor[level] }}
           >
             <div className="grid grid-cols-2 gap-6">
-              {steps.map((step, index) => (
-                <div
-                  key={step.lesson_id}
-                  className={`flex p-4 rounded-[20px] ${
-                    isLocked ? "cursor-not-allowed" : "cursor-pointer"
-                  }`}
-                  onClick={() => handleStepClick(step)}
-                >
-                  <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
-                    <img
-                      src="/assets/images/Sign.png"
-                      alt=""
-                      className="w-20 h-20"
-                    />
-                    {isLocked(index) && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-[15px]">
-                        <FiLock className="text-white" size={32} />
-                      </div>
-                    )}
-                  </div>
+              {steps.map((step, index) => {
+                const isLocked = isStepLocked(step, index);
+                const isCompleted = isStepCompleted(step);
 
-                  <div className="flex flex-col justify-center ml-4">
-                    <p className="font-bold text-lg">
-                      Step {step.step_number}. {step.word}
-                    </p>
+                return (
+                  <div
+                    key={step.lesson_id}
+                    className={`flex p-4 rounded-[20px] transition-all duration-200 ${
+                      isLocked
+                        ? "cursor-not-allowed"
+                        : "cursor-pointer hover:shadow-lg transform hover:-translate-y-1"
+                    }`}
+                    onClick={() => handleStepClick(step, index)}
+                  >
+                    <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
+                      <img
+                        src="/assets/images/Sign.png"
+                        alt=""
+                        className="w-20 h-20"
+                      />
+
+                      {/* 잠금 오버레이 */}
+                      {isLocked && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-[15px]">
+                          <FiLock className="text-white" size={32} />
+                        </div>
+                      )}
+
+                      {/* 완료 표시 */}
+                      {isCompleted && (
+                        <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col justify-center ml-4">
+                      <p className={`font-bold text-lg`}>
+                        Step {step.step_number}. {step.word}
+                      </p>
+
+                      {isLocked && (
+                        <p className="text-xs text-gray-500 mt-1">잠김</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

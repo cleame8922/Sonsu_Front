@@ -25,7 +25,7 @@ export default function AdminNoGroup() {
 
             <div
               className='text-[20px] fontSB px-4 py-3 rounded-2xl bg-[#E7E7E7] cursor-pointer'
-              onClick={() => navigate("/admingroupadd")} // 이동할 경로
+              onClick={() => navigate("/admin/group/add")}
             >
               수강 그룹 생성하기
             </div>

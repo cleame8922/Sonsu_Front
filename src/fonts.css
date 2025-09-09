@@ -36,6 +36,10 @@
   font-family: "Pretendard-Thin";
   src: url("../public//assets//fonts/Pretendard-Thin.otf") format("woff");
 }
+@font-face {
+  font-family: "RixInooAriDuriRegular";
+  src: url("../public//assets//fonts/RixInooAriDuriRegular.ttf") format("woff");
+}
 
 .fontBlack {
   font-family: "Pretendard-Black";
@@ -71,4 +75,8 @@
 
 .fontThin {
   font-family: "Pretendard-Thin";
+}
+
+.fontRix {
+  font-family: "RixInooAriDuriRegular";
 }

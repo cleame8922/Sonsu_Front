@@ -15,14 +15,14 @@ export default function ClassMenu() {
       path: `/admin/Curri_Part/${code}`,
     },
     {
-      title: "강의 커리큘럼",
+      title: "수강그룹",
       img: "/assets/images/Admin/Main/AdminMain2_2.png",
-      path: `/admin/Curri_Part/${code}`,
+      path: `/admin/group/${code}`,
     },
     {
-      title: "강의 커리큘럼",
+      title: "수강생",
       img: "/assets/images/Admin/Main/AdminMain2_3.png",
-      path: `/admin/Curri_Part/${code}`,
+      path: `/admin/student/${code}`,
     },
   ];
 
@@ -38,9 +38,7 @@ export default function ClassMenu() {
             {menus.map((menu, idx) => (
               <div
                 key={idx}
-                className="flex flex-col items-center mb-20 
-                           transition-transform duration-300 ease-in-out
-                           hover:scale-105 hover:brightness-105 p-4 cursor-pointer"
+                className="flex flex-col items-center p-4 mb-20 transition-transform duration-300 ease-in-out cursor-pointer hover:scale-105 hover:brightness-105"
                 onClick={() =>
                   navigate(menu.path, {
                     state,

@@ -125,7 +125,7 @@ export default function Speed() {
             )}
           </div>
 
-          {/* 🔹 모달 */}
+          {/* 모달 */}
           {modalVisible && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
               <div className="p-8 text-center bg-white shadow-lg rounded-xl">

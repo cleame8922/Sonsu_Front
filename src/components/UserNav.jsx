@@ -71,7 +71,13 @@ export default function UserNav() {
 
       try {
         const token = getToken();
-        await axios.post(`${API_URL}/logout`, {}, token ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true } : { withCredentials: true });
+        await axios.post(
+          `${API_URL}/logout`,
+          {},
+          token
+            ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+            : { withCredentials: true }
+        );
       } catch (error) {
         console.error("로그아웃 중 오류 발생:", error);
       } finally {
@@ -79,10 +85,13 @@ export default function UserNav() {
         setUserInfo(null);
         navigate("/");
       }
+    } else if (item === "SONSU CLASS") {
+      navigate("/admin/ClassList");
     } else {
       console.log(item + " 클릭됨");
     }
   };
+
 
   return (
     <div className="flex flex-col w-[16%] mx-14 relative overflow-visible">

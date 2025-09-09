@@ -7,7 +7,6 @@ import QuizInfo from "../pages/User/Quiz/QuizInfo";
 import QuizStart from "../pages/User/Quiz/QuizStart";
 import Speed from "../pages/User/Speed/Speed";
 import SpeedInfo from "../pages/User/Speed/SpeedInfo";
-import SpeedStart from "../pages/User/Speed/SpeedStart";
 import MyPage from "../pages/User/MyPage/MyPage";
 import Study from "../pages/User/Study/Study";
 import Home from "../pages/User/Home/Home";
@@ -24,9 +23,8 @@ export default function User() {
       <Route path="/quiz" element={<Quiz />} />
       <Route path="/quiz/info" element={<QuizInfo />} />
       <Route path="/quiz/start" element={<QuizStart />} />
-      <Route path="/speed" element={<Speed />} />
       <Route path="/speed/info" element={<SpeedInfo />} />
-      <Route path="/speed/start" element={<SpeedStart />} />
+      <Route path="/speed" element={<Speed />} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/study/:lessonId" element={<Study />} />
       <Route path="/classroom/:level" element={<Classroom />} />

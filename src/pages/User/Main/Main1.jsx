@@ -14,7 +14,7 @@ export default function Main1() {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center relative px-24 py-8">
+    <div className="relative flex flex-col justify-center px-24 py-8">
       <MainHeader />
 
       {/* 상단 텍스트 */}

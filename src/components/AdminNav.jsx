@@ -1,25 +1,30 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
 export default function AdminNav() {
-  const [selected, setSelected] = useState("커리큘럼 관리");
   const navigate = useNavigate();
+  const location = useLocation();
+  const { code } = useParams(); // 여기서 code 가져오기
+
+  const menus = [
+    { name: "커리큘럼 관리", path: "/admin/ClassList" },
+    { name: "수강그룹 관리", path: `/admin/group/${code}` },
+    { name: "수강생 관리", path: `/admin/student/${code}` },
+  ];
+
+  const [selected, setSelected] = useState("");
+
+  // URL 변경에 따라 selected 업데이트
+  useEffect(() => {
+    const currentMenu = menus.find((menu) => menu.path === location.pathname);
+    setSelected(currentMenu ? currentMenu.name : "");
+  }, [location.pathname, code]); // code가 바뀌면 다시 체크
 
   const handleClick = (menu) => {
-    setSelected(menu);
-    if (menu === "커리큘럼 관리") {
-      navigate("/Curri_Part"); // 원하는 경로로 이동
-    }
-    if (menu === "수강그룹 관리") {
-      navigate("/adminnogroup"); // 원하는 경로로 이동
-    }
-    if (menu === "수강생 관리") {
-      navigate("/adminnogroup"); // 원하는 경로로 이동
-    }
+    setSelected(menu.name);
+    navigate(menu.path);
   };
-
-  const menus = ["커리큘럼 관리", "수강그룹 관리", "수강생 관리"];
 
   return (
     <div className="flex flex-col w-[16%] mx-14 ">
@@ -32,15 +37,15 @@ export default function AdminNav() {
 
         {menus.map((menu) => (
           <div
-            key={menu}
+            key={menu.name}
             className={`flex my-5 fontBold cursor-pointer ${
-              selected === menu
+              selected === menu.name
                 ? "text-white text-[23px]"
                 : "text-[#333] text-[20px]"
             }`}
             onClick={() => handleClick(menu)}
           >
-            {menu}
+            {menu.name}
           </div>
         ))}
       </div>

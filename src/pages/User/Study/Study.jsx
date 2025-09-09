@@ -4,7 +4,6 @@ import UserTitle from "../../../components/UserTitle";
 import UserNav from "../../../components/UserNav";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
-import axios from "axios";
 
 export default function Study() {
   const location = useLocation();
@@ -139,11 +138,10 @@ export default function Study() {
               <div className="flex justify-end">
                 <video
                   src={currentTopic?.animation_path || animation}
-                  controls
                   loop
                   autoPlay
                   muted
-                  className="w-[70%] max-w-[600px] h-auto rounded-[10px] bg-black"
+                  className="w-[70%] max-w-[600px] h-auto rounded-[10px] shadow-md"
                   style={{ aspectRatio: "16/9" }}
                   onError={(e) => console.log("Video error:", e)}
                 >
@@ -154,8 +152,8 @@ export default function Study() {
           </div>
 
           {/* 카메라 피드 */}
-          <div className="flex justify-center mb-8">
-            <div className="w-[350px] max-w-[90%] h-[197px] overflow-hidden rounded-[15px] bg-black border border-[#ddd]">
+          <div className="flex justify-center mt-12">
+            <div className="w-[1000px] h-[450px] overflow-hidden rounded-[15px] bg-black border border-[#ddd]">
               <iframe
                 src={`${API_URL}/game1/video_feed`}
                 className="w-full h-full border-none bg-transparent"

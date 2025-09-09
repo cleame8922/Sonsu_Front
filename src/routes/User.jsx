@@ -8,7 +8,7 @@ import QuizStart from "../pages/User/Quiz/QuizStart";
 import Speed from "../pages/User/Speed/Speed";
 import SpeedInfo from "../pages/User/Speed/SpeedInfo";
 import SpeedStart from "../pages/User/Speed/SpeedStart";
-import MyPage from "../pages/User/MyPage";
+import MyPage from "../pages/User/MyPage/MyPage";
 import Study from "../pages/User/Study/Study";
 import Home from "../pages/User/Home/Home";
 import Classroom from "../pages/User/Classroom/Classroom";

@@ -7,6 +7,9 @@ import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import WeeklyRank from "./WeeklyRank";
 import Review from "./Review";
+import AttendanceCheck from "./AttendanceCheck";
+import WeeklyReport from "./WeeklyReport";
+import SignReview from "./SignReview";
 
 export default function MyPage() {
   const [userInfo, setUserInfo] = useState({});
@@ -55,31 +58,45 @@ export default function MyPage() {
       <UserTitle />
       <div className="flex w-full">
         <UserNav />
-        <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-32 py-16 overflow-y-auto">
-          {/* 프로필 */}
-          <div className="flex items-center w-fit">
-            <div className="w-[90px] h-[90px] rounded-full bg-white overflow-hidden flex items-center justify-center shadow-md">
-              <img
-                src="/assets/images/sonsu.png"
-                alt=""
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="ml-6">
-              <p className="fontSB text-[12px]">상위 __%</p>
-              <p className="fontSB text-[28px]">
-                {userInfo?.username ? userInfo?.username : "undefined"}
-              </p>
-            </div>
-          </div>
-          {/* 주간랭킹 */}
-          <div className="mt-8">
-            <WeeklyRank />
-          </div>
+        <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-32 py-12 overflow-y-auto">
+          <div className="flex w-full justify-ceneter items-center h-full">
+            {/* 왼 */}
+            <div className="w-[74%]">
+              {/* 프로필 */}
+              <div className="flex items-center w-fit">
+                <div className="w-[90px] h-[90px] rounded-full bg-white overflow-hidden flex items-center justify-center shadow-md">
+                  <img
+                    src="/assets/images/sonsu.png"
+                    alt=""
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="ml-6">
+                  <p className="fontSB text-[12px]">상위 __%</p>
+                  <p className="fontSB text-[28px]">
+                    {userInfo?.username ? userInfo?.username : "undefined"}
+                  </p>
+                </div>
+              </div>
+              {/* 주간랭킹 */}
+              <div className="mt-8">
+                <WeeklyRank />
+              </div>
 
-          {/* 오답 수어 다시보기 */}
-          <div className="mt-8">
-            <Review />
+              {/* 오답 수어 다시보기 */}
+              <div className="mt-8">
+                <Review />
+              </div>
+            </div>
+
+            {/* 오 */}
+            <div className="w-[26%] space-y-10">
+              {/* 카드 3개 */}
+
+              <AttendanceCheck />
+              <WeeklyReport />
+              <SignReview />
+            </div>
           </div>
         </div>
       </div>

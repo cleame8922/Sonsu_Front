@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import UserTitle from "../../../components/UserTitle";
 import UserNav from "../../../components/UserNav";
 import { API_URL } from "../../../config";
+import { serverIP } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 
 export default function Study() {
@@ -10,6 +11,9 @@ export default function Study() {
   const navigate = useNavigate();
   const { lessonId } = useParams();
   const [lessons, setLessons] = useState([]);
+  const [error, setError] = useState(null);
+  const [videoSrc, setVideoSrc] = useState(`${serverIP}/video_feed`);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
 
   // location.state에서 topic, lesson, index 받기 (앱과 동일)
   const { topic, lesson, index } = location.state || {};
@@ -152,17 +156,33 @@ export default function Study() {
           </div>
 
           {/* 카메라 피드 */}
-          <div className="flex justify-center mt-12">
+          {/* <div className="flex justify-center mt-12">
             <div className="w-[1000px] h-[450px] overflow-hidden rounded-[15px] bg-black border border-[#ddd]">
               <iframe
                 src={`${API_URL}/game1/video_feed`}
-                className="w-full h-full border-none bg-transparent"
+                className="w-full h-full bg-transparent border-none"
                 title="Camera Feed"
                 frameBorder="0"
                 allow="camera; microphone"
                 onError={(error) => console.log("Iframe error:", error)}
               />
             </div>
+          </div> */}
+
+          <div className="flex justify-center h-full">
+            {error ? (
+              <div className="mt-4 text-red-500">{error}</div>
+            ) : (
+              <div className="mt-4">
+                {isVideoPlaying && (
+                  <img
+                    src={videoSrc}
+                    alt="Video Stream"
+                    className="w-[1200px] h-[600px] shadow-xl rounded-3xl"
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {/* 혼자 해보기 버튼 */}

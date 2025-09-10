@@ -145,7 +145,7 @@ export default function Study() {
                   loop
                   autoPlay
                   muted
-                  className="w-[70%] max-w-[600px] h-auto rounded-[10px] shadow-md"
+                  className="w-[55%] max-w-[600px] h-auto rounded-[10px] shadow-md"
                   style={{ aspectRatio: "16/9" }}
                   onError={(e) => console.log("Video error:", e)}
                 >
@@ -178,7 +178,7 @@ export default function Study() {
                   <img
                     src={videoSrc}
                     alt="Video Stream"
-                    className="w-[1200px] h-[600px] shadow-xl rounded-3xl"
+                    className="w-[1100px] h-[500px] shadow-lg rounded-3xl"
                   />
                 )}
               </div>

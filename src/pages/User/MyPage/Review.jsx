@@ -57,11 +57,11 @@ export default function Review() {
   }
 
   return (
-    <div className="">
+    <div className="w-fit">
       <div className="flex justify-between mt-3 mb-3">
         <h2 className="text-lg font-bold">오답 수어 다시보기</h2>
       </div>
-      <div className="w-[50%] max-w-4xl bg-white mt-5 mb-10 p-5 rounded-2xl shadow-lg">
+      <div className="w-[70%] max-w-4xl bg-white mt-5 mb-10 p-5 rounded-2xl shadow-lg">
         <div className="flex gap-4 overflow-x-auto pb-3">
           {cards.map((lesson, index) => (
             <Card

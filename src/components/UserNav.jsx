@@ -96,7 +96,7 @@ export default function UserNav() {
   return (
     <div className="flex flex-col w-[16%] mx-14 relative overflow-visible">
       <div className="flex flex-col">
-        <img src="/assets/images/logo.png" alt="logo" className="w-[100px]" />
+        <img  src="/assets/images/logo.png" alt="logo" className="w-[100px] cursor-pointer" onClick={() => navigate("/")} />
 
         {menus.map((menu) => (
           <div key={menu} className="flex flex-col">

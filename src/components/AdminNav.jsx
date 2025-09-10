@@ -33,6 +33,7 @@ export default function AdminNav() {
           src="/assets/images/Admin/Member/group.png"
           alt="group"
           className="flex w-[120px]"
+          onClick={() => navigate("/admin")}
         />
 
         {menus.map((menu) => (

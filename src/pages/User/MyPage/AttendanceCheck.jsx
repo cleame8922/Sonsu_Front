@@ -3,22 +3,23 @@ import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 
 export default function AttendanceCheck({ isActive, setIsActive }) {
-  //   const [isActive, setIsActive] = useState(false);
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [attendanceData, setAttendanceData] = useState([]);
-  //   const ref = useRef(null);
+  const ref = useRef(null);
 
-  // 바깥 클릭 감지
-  //   useEffect(() => {
-  //     const handleClickOutside = (event) => {
-  //       if (ref.current && !ref.current.contains(event.target)) {
-  //         setIsActive(false);
-  //       }
-  //     };
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //     return () => document.removeEventListener("mousedown", handleClickOutside);
-  //   }, [setIsActive]);
+  //   바깥 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsActive(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setIsActive]);
 
   // 출석 데이터 Fetch
   useEffect(() => {
@@ -174,14 +175,14 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="relative z-50">
+    <div className="relative" ref={ref}>
       <div
         onClick={() => setIsActive(!isActive)}
         className={`bg-[#FFEEB8] rounded-[20px] pl-8 pt-6 w-full shadow-lg h-[200px]
                    transform transition duration-300 ease-in-out
                    cursor-pointer
                    ${
-                     isActive ? "scale-105 shadow-2xl" : "scale-100 shadow-lg"
+                     isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"
                    }`}
       >
         <p className="fontSB text-[24px]">출석체크</p>
@@ -201,7 +202,7 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
 
       {/* 클릭 시 나오는 말풍선 */}
       {isActive && (
-        <div className="absolute -left-10 top-0 mt-0 -translate-x-full w-[400px] p-6 bg-white rounded-xl shadow-2xl z-50 transform transition duration-300 ease-in-out">
+        <div className="absolute -left-10 top-0 mt-0 -translate-x-full w-[500px] p-6 bg-white rounded-xl shadow-2xl z-50 transform transition duration-300 ease-in-out max-h-[600px] overflow-y-auto">
           {/* 헤더 */}
           <div className="flex justify-center items-center mb-4">
             <div className="flex items-center gap-4">
@@ -224,44 +225,46 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
           </div>
 
           {/* 달력 */}
-          <div className="bg-white rounded-lg">
-            {/* 요일 헤더 */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {weekdays.map((weekday, index) => (
-                <div
-                  key={index}
-                  className="text-center py-2 font-semibold text-gray-600"
-                >
-                  {weekday}
-                </div>
-              ))}
-            </div>
+          <div className="flex justify-center">
+            <div className="bg-white rounded-lg w-[80%]">
+              {/* 요일 헤더 */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {weekdays.map((weekday, index) => (
+                  <div
+                    key={index}
+                    className="text-center py-2 font-semibold text-gray-600"
+                  >
+                    {weekday}
+                  </div>
+                ))}
+              </div>
 
-            {/* 날짜 */}
-            <div className="grid grid-cols-7 gap-1">
-              {daysInMonth.map((day, index) => (
-                <div
-                  key={`${day.date}-${day.isCurrentMonth}-${index}`}
-                  className={`relative aspect-square flex items-center justify-center text-sm rounded-lg
+              {/* 날짜 */}
+              <div className="grid grid-cols-7 gap-1">
+                {daysInMonth.map((day, index) => (
+                  <div
+                    key={`${day.date}-${day.isCurrentMonth}-${index}`}
+                    className={`relative aspect-square flex items-center justify-center text-sm rounded-lg
                     ${!day.isCurrentMonth ? "text-gray-300" : "text-gray-700"}
                     ${isToday(day) ? "text-orange-500 font-bold" : ""}
                     ${isAttended(day.date) && day.isCurrentMonth ? "" : ""}
                   `}
-                >
-                  <span>{day.date}</span>
-                  {isAttended(day.date) && day.isCurrentMonth && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center">
-                        <img
-                          src="/assets/images/logo.png"
-                          alt="출석"
-                          className="w-8 h-8"
-                        />
+                  >
+                    <span>{day.date}</span>
+                    {isAttended(day.date) && day.isCurrentMonth && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center">
+                          <img
+                            src="/assets/images/logo.png"
+                            alt="출석"
+                            className="w-8 h-8"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

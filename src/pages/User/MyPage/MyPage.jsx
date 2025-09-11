@@ -90,7 +90,10 @@ export default function MyPage() {
               />
 
               {/* 즐겨찾기 */}
-              <SignReview />
+              <SignReview
+                isActive={activePanel === "review"}
+                setIsActive={(val) => setActivePanel(val ? "review" : null)}
+              />
             </div>
           </div>
         </div>

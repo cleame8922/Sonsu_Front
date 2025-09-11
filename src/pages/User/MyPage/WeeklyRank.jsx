@@ -81,7 +81,7 @@ const WeeklyRank = () => {
   }, [myUsername]);
 
   return (
-    <div className="w-[50%]">
+    <div className="w-[80%]">
       <div className="flex justify-between mt-3 mb-3">
         <h2 className="text-lg font-bold">주간 랭킹</h2>
         <button onClick={() => setModalVisible(true)}>

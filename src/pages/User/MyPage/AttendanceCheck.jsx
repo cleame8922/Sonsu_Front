@@ -2,25 +2,23 @@ import React, { useState, useEffect, useRef } from "react";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 
-export default function AttendanceCheck() {
-  const [isActive, setIsActive] = useState(false);
+export default function AttendanceCheck({ isActive, setIsActive }) {
+  //   const [isActive, setIsActive] = useState(false);
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [attendanceData, setAttendanceData] = useState([]);
-  const ref = useRef(null);
+  //   const ref = useRef(null);
 
   // 바깥 클릭 감지
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsActive(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   useEffect(() => {
+  //     const handleClickOutside = (event) => {
+  //       if (ref.current && !ref.current.contains(event.target)) {
+  //         setIsActive(false);
+  //       }
+  //     };
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //     return () => document.removeEventListener("mousedown", handleClickOutside);
+  //   }, [setIsActive]);
 
   // 출석 데이터 Fetch
   useEffect(() => {
@@ -176,8 +174,7 @@ export default function AttendanceCheck() {
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="relative" ref={ref}>
-      {/* 출석체크 카드 */}
+    <div className="relative z-50">
       <div
         onClick={() => setIsActive(!isActive)}
         className={`bg-[#FFEEB8] rounded-[20px] pl-8 pt-6 w-full shadow-lg h-[200px]
@@ -247,23 +244,19 @@ export default function AttendanceCheck() {
                   key={`${day.date}-${day.isCurrentMonth}-${index}`}
                   className={`relative aspect-square flex items-center justify-center text-sm rounded-lg
                     ${!day.isCurrentMonth ? "text-gray-300" : "text-gray-700"}
-                    ${
-                      isToday(day)
-                        ? "bg-orange-100 text-orange-600 font-bold"
-                        : ""
-                    }
-                    ${
-                      isAttended(day.date) && day.isCurrentMonth
-                        ? "bg-yellow-100"
-                        : ""
-                    }
+                    ${isToday(day) ? "text-orange-500 font-bold" : ""}
+                    ${isAttended(day.date) && day.isCurrentMonth ? "" : ""}
                   `}
                 >
                   <span>{day.date}</span>
                   {isAttended(day.date) && day.isCurrentMonth && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-white">✓</span>
+                      <div className="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center">
+                        <img
+                          src="/assets/images/logo.png"
+                          alt="출석"
+                          className="w-8 h-8"
+                        />
                       </div>
                     </div>
                   )}

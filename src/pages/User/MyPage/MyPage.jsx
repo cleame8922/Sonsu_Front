@@ -13,40 +13,25 @@ import SignReview from "./SignReview";
 
 export default function MyPage() {
   const [userInfo, setUserInfo] = useState({});
+  const [activePanel, setActivePanel] = useState(null); // "attendance", "report", null
   const navigate = useNavigate();
 
-  // 사용자 정보
+  // 사용자 정보 가져오기
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const token = getToken();
-
-        if (!token) {
-          console.log("토큰이 없습니다.");
-          return;
-        }
+        if (!token) return console.log("토큰이 없습니다.");
 
         const response = await axios.get(`${API_URL}/login/success`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
 
-        if (response.data) {
-          setUserInfo(response.data);
-        }
+        if (response.data) setUserInfo(response.data);
       } catch (error) {
         console.error("사용자 정보 가져오기 실패:", error);
-        console.error("에러 상세:", error.response?.data);
-
-        // 토큰이 만료되었거나 유효하지 않은 경우
-        if (error.response?.status === 401) {
-          console.log("토큰이 만료되었거나 유효하지 않습니다.");
-          // 필요시 로그인 페이지로 리다이렉트
-          navigate("/login");
-        }
+        if (error.response?.status === 401) navigate("/login");
       }
     };
 
@@ -54,13 +39,13 @@ export default function MyPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#6CC197]">
+    <div className="min-h-screen bg-[#6CC197] relative">
       <UserTitle />
       <div className="flex w-full">
         <UserNav />
         <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-32 py-12 overflow-y-auto">
-          <div className="flex w-full justify-ceneter items-center h-full">
-            {/* 왼 */}
+          <div className="flex w-full justify-center items-start h-full">
+            {/* 왼쪽 */}
             <div className="w-[74%]">
               {/* 프로필 */}
               <div className="flex items-center w-fit">
@@ -74,10 +59,11 @@ export default function MyPage() {
                 <div className="ml-6">
                   <p className="fontSB text-[12px]">상위 __%</p>
                   <p className="fontSB text-[28px]">
-                    {userInfo?.username ? userInfo?.username : "undefined"}
+                    {userInfo?.username || "undefined"}
                   </p>
                 </div>
               </div>
+
               {/* 주간랭킹 */}
               <div className="mt-8">
                 <WeeklyRank />
@@ -89,17 +75,34 @@ export default function MyPage() {
               </div>
             </div>
 
-            {/* 오 */}
-            <div className="w-[26%] space-y-10">
-              {/* 카드 3개 */}
+            {/* 오른쪽 */}
+            <div className="w-[26%] space-y-10 relative z-50">
+              {/* 출석체크 */}
+              <AttendanceCheck
+                isActive={activePanel === "attendance"}
+                setIsActive={(val) => setActivePanel(val ? "attendance" : null)}
+              />
 
-              <AttendanceCheck />
-              <WeeklyReport />
+              {/* 주간리포트 */}
+              <WeeklyReport
+                isActive={activePanel === "report"}
+                setIsActive={(val) => setActivePanel(val ? "report" : null)}
+              />
+
+              {/* 즐겨찾기 */}
               <SignReview />
             </div>
           </div>
         </div>
       </div>
+
+      {/* 오버레이 */}
+      {activePanel && (
+        <div
+          className="absolute inset-0 bg-black/30 z-40"
+          onClick={() => setActivePanel(null)}
+        />
+      )}
     </div>
   );
 }

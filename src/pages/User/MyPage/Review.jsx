@@ -23,9 +23,6 @@ export default function Review() {
         const response = await axios.get(`${API_URL}/quiz/wrong`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            // 또는 서버 설정에 따라 다른 형식일 수 있습니다:
-            // 'Authorization': token,
-            // 'x-auth-token': token,
           },
         });
 

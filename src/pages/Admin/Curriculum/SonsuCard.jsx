@@ -7,7 +7,7 @@ import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import { RxPlus } from "react-icons/rx";
 
-export default function SonsuCard() {
+export default function SonsuCard({ onAddLesson }) {
   const [activeTab, setActiveTab] = useState("초급");
   const [lessons, setLessons] = useState([]);
 
@@ -78,7 +78,10 @@ export default function SonsuCard() {
                 {lesson.words?.join(", ")}
               </p>
             </div>
-            <div className="flex items-center justify-end">
+            <div
+              className="flex items-center justify-end"
+              onClick={() => onAddLesson(lesson.lessonCategory_id)}
+            >
               <RxPlus size={24} />
             </div>
           </div>

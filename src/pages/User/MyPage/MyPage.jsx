@@ -44,7 +44,7 @@ export default function MyPage() {
       <div className="flex w-full">
         <UserNav />
         <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-32 py-12 overflow-y-auto">
-          <div className="flex w-full justify-center items-start h-full">
+          <div className="flex w-full justify-center items-center h-full">
             {/* 왼쪽 */}
             <div className="w-[74%]">
               {/* 프로필 */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import classData from "../../../utils/ClassData";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 
 export default function SignReview({ isActive, setIsActive }) {
   const [selectedLevel, setSelectedLevel] = useState("초급");
@@ -137,11 +138,10 @@ export default function SignReview({ isActive, setIsActive }) {
       <div
         onClick={() => setIsActive(!isActive)}
         className={`bg-[#FFEEB8] rounded-[20px] pl-8 pt-6 w-full shadow-lg h-[200px]
-                   transform transition duration-300 ease-in-out
-                   cursor-pointer
-                   ${
-                     isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"
-                   }`}
+             transform transition duration-300 ease-in-out
+             cursor-pointer
+             ${isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"}
+             ${isActive ? "filter brightness-105" : ""}`}
       >
         <p className="fontSB text-[24px]">수어 즐겨찾기</p>
         <div className="fontSB text-[12px] text-[#555] mt-3">
@@ -219,32 +219,15 @@ export default function SignReview({ isActive, setIsActive }) {
                         className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow relative"
                       >
                         {/* 북마크 버튼 */}
+                        {/* 북마크 버튼 */}
                         <button
                           onClick={() => handleBookmark(item.lesson_id)}
-                          className="absolute top-5 right-6 z-10 hover:scale-110 transition-transform"
+                          className="absolute top-6 right-6 z-10 hover:scale-110 transition-transform"
                         >
                           {bookmarkedTopics.includes(item.lesson_id) ? (
-                            <svg
-                              width="32"
-                              height="32"
-                              viewBox="0 0 24 24"
-                              fill="#FFCA1A"
-                              //   xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                            </svg>
+                            <FaBookmark size={28} color="#FFCA1A" />
                           ) : (
-                            <svg
-                              width="32"
-                              height="32"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#FFCA1A"
-                              strokeWidth="2"
-                              //   xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                            </svg>
+                            <FaRegBookmark size={28} color="#FFCA1A" />
                           )}
                         </button>
 

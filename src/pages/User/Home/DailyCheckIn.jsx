@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
+import axios from "axios";
 
 const DailyCheckIn = () => {
   const [attendedDates, setAttendedDates] = useState({});
@@ -33,40 +34,63 @@ const DailyCheckIn = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/attend`, {
-        method: "GET",
-        credentials: "include", // withCredentials와 동일
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const token = getToken();
+      if (!token) {
+        console.log("토큰이 없습니다.");
+        return;
       }
 
-      const data = await response.json();
+      const response = await axios.get(`${API_URL}/attend`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      console.log("출석 API 응답:", response.data); // 디버깅용
+
+      const data = response.data;
       const attendedMap = {};
 
-      data.forEach((item) => {
-        const dateObj = new Date(item.attend_date);
-        // KST 기준 날짜 추출
-        const kstOffset = 9 * 60 * 60 * 1000;
-        const localDate = new Date(dateObj.getTime() + kstOffset);
-        const dateString = localDate.toISOString().split("T")[0];
-        attendedMap[dateString] = true;
+      // 데이터 타입 확인 및 안전한 처리
+      let attendanceArray = [];
+
+      if (Array.isArray(data)) {
+        attendanceArray = data;
+      } else if (data && Array.isArray(data.data)) {
+        attendanceArray = data.data;
+      } else if (data && Array.isArray(data.attendance)) {
+        attendanceArray = data.attendance;
+      } else {
+        console.warn("예상치 못한 데이터 형태:", data);
+        setAttendedDates({});
+        return;
+      }
+
+      attendanceArray.forEach((item) => {
+        try {
+          const dateObj = new Date(item.attend_date);
+          // KST 기준 날짜 추출
+          const kstOffset = 9 * 60 * 60 * 1000;
+          const localDate = new Date(dateObj.getTime() + kstOffset);
+          const dateString = localDate.toISOString().split("T")[0];
+          attendedMap[dateString] = true;
+        } catch (dateError) {
+          console.error("날짜 처리 오류:", dateError, item);
+        }
       });
 
       setAttendedDates(attendedMap);
     } catch (error) {
       console.error("출석 데이터를 불러오는 중 오류 발생:", error);
+      console.error("에러 응답:", error.response?.data);
       setError("출석 데이터를 불러오는데 실패했습니다.");
-      // 오류 시 빈 객체로 설정
       setAttendedDates({});
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   useEffect(() => {
     fetchAttendanceData();
@@ -119,7 +143,6 @@ const DailyCheckIn = () => {
             >
               {attendedDates[fullDate] ? (
                 <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center">
-                  {/* <span className="text-white text-xs font-bold">✓</span> */}
                   <img src="/assets/images/logo.png" alt="" />
                 </div>
               ) : (

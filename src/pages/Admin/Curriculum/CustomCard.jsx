@@ -1,43 +1,36 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import AdminTitle from "../../../components/AdminTitle";
-import AdminNav from "../../../components/AdminNav";
 import axios from "axios";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-export default function CustomCard() {
+export default function CustomCard({ onDeleteLesson }) {
   const [activeTab, setActiveTab] = useState("초급");
   const [lessons, setLessons] = useState([]);
-  const { code } = useParams();
+  const { code: classId } = useParams();
+
   const { state } = useLocation();
   const name = state?.name;
   const desc = state?.desc;
+  const [customLessons, setCustomLessons] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // 클래스 강의 불러오기
   useEffect(() => {
-    const fetchLessons = async () => {
+    const fetchCustomLessons = async () => {
       try {
-        // activeTab에 따른 levelId
-        const tabLevelId = { 초급: 1, 중급: 2, 고급: 3 };
-        const res = await axios.get(
-          `${API_URL}/lessons/${tabLevelId[activeTab]}/categories`
-        );
-        setLessons(res.data.categoriesWithWord || []);
-        console.log(activeTab, res.data);
+        const res = await axios.get(`${API_URL}/class/lesson`);
+        setCustomLessons(res.data || []);
       } catch (err) {
-        console.error(`${activeTab} 강의 불러오기 실패:`, err);
+        console.error("클래스 강의 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchLessons();
+    fetchCustomLessons();
   }, [activeTab]);
-
-  const tabToLevelKey = {
-    초급: "easy",
-    중급: "normal",
-    고급: "hard",
-  };
 
   const tabColors = {
     초급: "#39B360",
@@ -47,17 +40,16 @@ export default function CustomCard() {
 
   // 탭별 콘텐츠
   const renderContent = () => {
-    if (!lessons || lessons.length === 0) {
+    if (!customLessons || customLessons.length === 0) {
       return <p className="text-gray-500 mt-4">강의가 없습니다.</p>;
     }
 
     return (
       <div className="h-[550px] overflow-y-auto space-y-4">
-        {lessons.map((lesson) => (
+        {customLessons.map((lesson) => (
           <div
             key={lesson.lessonCategory_id}
             className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-            // onClick={() => handleLessonClick(lesson)} // 필요하면 클릭 이벤트 추가
           >
             {/* 이미지 */}
             <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
@@ -77,8 +69,14 @@ export default function CustomCard() {
                 {lesson.words?.join(", ")}
               </p>
             </div>
+
+            {/* 삭제 버튼 */}
             <div className="flex items-center justify-end">
-              <FaRegTrashAlt size={24} />
+              <FaRegTrashAlt
+                size={24}
+                className="cursor-pointer"
+                onClick={() => onDeleteLesson(lesson.lessonCategory_id)}
+              />
             </div>
           </div>
         ))}
@@ -104,7 +102,6 @@ export default function CustomCard() {
               >
                 {tab}
               </button>
-              {/* 구분자 | (마지막 요소 제외) */}
               {index < arr.length - 1 && (
                 <span className="mx-2 text-[#777]">|</span>
               )}

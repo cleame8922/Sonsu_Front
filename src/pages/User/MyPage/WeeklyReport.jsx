@@ -92,11 +92,10 @@ export default function WeeklyReport({ isActive, setIsActive }) {
       <div
         onClick={() => setIsActive(!isActive)}
         className={`bg-[#FFEEB8] rounded-[20px] pl-8 pt-6 w-full shadow-lg h-[200px]
-                   transform transition duration-300 ease-in-out
-                   cursor-pointer
-                   ${
-                     isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"
-                   }`}
+             transform transition duration-300 ease-in-out
+             cursor-pointer
+             ${isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"}
+             ${isActive ? "filter brightness-105" : ""}`}
       >
         <p className="fontSB text-[24px]">주간 리포트</p>
         <div className="fontSB text-[13px] text-[#555] mt-3">

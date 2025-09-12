@@ -11,6 +11,8 @@ export default function UserNav() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [hoverUserMenu, setHoverUserMenu] = useState(false);
   const [userInfo, setUserInfo] = useState({});
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [classCode, setClassCode] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,11 +89,39 @@ export default function UserNav() {
       }
     } else if (item === "SONSU CLASS") {
       navigate("/admin/ClassList");
+    } else if (item === "수업 참여하기") {
+      setShowJoinModal(true);
     } else {
       console.log(item + " 클릭됨");
     }
   };
 
+  const handleJoinClass = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      const response = await axios.post(
+        `${API_URL}/class/join`, // 수업 참여 API 엔드포인트
+        { code: classCode },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      );
+
+      if (response.data.success) {
+        alert("수업 참여가 완료되었습니다!");
+        setShowJoinModal(false);
+        setClassCode("");
+      } else {
+        alert("수업 참여 실패: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("수업 참여 중 오류:", error.response?.data);
+      alert("수업 참여 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div className="flex flex-col w-[16%] mx-14 relative overflow-visible">
@@ -171,6 +201,36 @@ export default function UserNav() {
           )}
         </div>
       </div>
+
+      {/* 수업 참여 모달 */}
+      {showJoinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex flex-col p-8 bg-white rounded-xl w-96">
+            <h2 className="mb-4 text-lg font-semibold">수업 참여</h2>
+            <input
+              type="text"
+              placeholder="수업 참여 코드 입력"
+              className="p-2 mb-4 border rounded"
+              value={classCode}
+              onChange={(e) => setClassCode(e.target.value)}
+            />
+            <div className="flex justify-end">
+              <button
+                className="text-[16px] text-[#333] fontSB"
+                onClick={() => setShowJoinModal(false)}
+              >
+                취소
+              </button>
+              <button
+                className="ml-5 fontBold text-[16px] text-[#DFAB00]"
+                onClick={handleJoinClass}
+              >
+                참여
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

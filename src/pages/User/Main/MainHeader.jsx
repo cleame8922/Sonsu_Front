@@ -60,7 +60,7 @@ export default function MainHeader() {
   };
 
   return (
-    <div className="flex justify-between items-center px-8 py-4">
+    <div className="flex items-center justify-between px-8 py-4">
       {/* 로고 */}
       <div className="flex items-center">
         <img src="assets/images/logo.png" className="w-20" alt="Logo" />
@@ -68,7 +68,7 @@ export default function MainHeader() {
       </div>
 
       {/* 로그인 상태에 따라 버튼/인사 표시 */}
-      <div className="flex space-x-4 items-center">
+      <div className="flex items-center space-x-4">
         {userInfo?.username ? (
           <div className="flex items-center space-x-2">
             <div className="text-[#222] fontSB">
@@ -93,7 +93,7 @@ export default function MainHeader() {
             <div className="w-[1px] bg-[#222] self-center h-4"></div>
             <button
               className="fontSB text-[#222] rounded-lg hover:text-[#DBBF63] transition-colors"
-              onClick={() => navigate("/signup")}
+              // onClick={() => navigate("/signup")}
             >
               Sign Up
             </button>

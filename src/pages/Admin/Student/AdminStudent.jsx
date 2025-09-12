@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import AdminTitle from '../../../components/AdminTitle';
 import AdminNav from '../../../components/AdminNav';
+import { IoCheckbox } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
-import { IoPersonAdd } from "react-icons/io5";
-import { IoCopyOutline } from "react-icons/io5";
-import { classes } from '../../../data/classes';
+import { IoPersonAdd, IoCopyOutline } from "react-icons/io5";
+import { API_URL } from '../../../config';
+import axios from 'axios';
 
 const colors = [
   "#DEE6F1",
@@ -17,18 +18,64 @@ const colors = [
   "#D9D9D9",
 ];
 
-export default function AdminStudent() {
+export default function AdminGroup() {
   const { code } = useParams();
-  const cls = classes.find(c => c.code === code);
-
+  const [cls, setCls] = useState(null);
+  const [groupName, setGroupName] = useState("");
+  const [groupDesc, setGroupDesc] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selected, setSelected] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null); // 선택된 학생
 
-  // 그룹 수정용 상태
-  const [groupName, setGroupName] = useState(cls?.name || "");
-  const [groupDesc, setGroupDesc] = useState(cls?.desc || "");
-  const [selectedColor, setSelectedColor] = useState(cls?.color || "");
+  useEffect(() => {
+    const fetchClass = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const res = await axios.get(`${API_URL}/class/${code}/select`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = res.data.data;
+
+        const classData = {
+          id: data.class_id,
+          name: data.class_name,
+          desc: data.description,
+          code: data.class_code,
+          color: colors[(data.color_id || 1) - 1],
+          students: data.students || [], // 백에서 학생 목록 받는 경우
+        };
+
+        setCls(classData);
+        setGroupName(classData.name);
+        setGroupDesc(classData.desc);
+        setSelectedColor(classData.color);
+      } catch (error) {
+        console.error(error);
+        alert("클래스 조회에 실패했습니다.");
+      }
+    };
+
+    fetchClass();
+  }, [code]);
+
+  const toggleSelect = (name) => {
+    setSelected(prev =>
+      prev.includes(name)
+        ? prev.filter(n => n !== name)
+        : [...prev, name]
+    );
+  };
+
+  const selectAll = () => {
+    if (selected.length === cls.students.length) {
+      setSelected([]);
+    } else {
+      setSelected(cls.students.map(s => s.name));
+    }
+  };
 
   const copyGroupId = () => {
     navigator.clipboard.writeText(`#${cls.code}`)
@@ -45,10 +92,6 @@ export default function AdminStudent() {
   if (!cls) {
     return <div className='flex items-center justify-center min-h-screen'>클래스를 찾을 수 없습니다.</div>;
   }
-
-  const handleSelectStudent = (student) => {
-    setSelectedStudent(student.id === selectedStudent?.id ? null : student);
-  };
 
   return (
     <div className='min-h-screen bg-[#5A9CD0]'>
@@ -88,48 +131,58 @@ export default function AdminStudent() {
             </div>
           </div>
 
-          {/* 수강생 리스트 & 안내 영역 */}
-          <div className="flex w-[85%] mt-6 h-full">
-            {/* 왼쪽: 수강생 리스트 */}
-            <div className="flex flex-col w-[35%]">
+          {/* 수강생이 없는 경우 */}
+          {cls.students.length === 0 ? (
+            <div className='flex flex-col items-center justify-center w-full mt-32'>
+              <img
+                src="/assets/images/Admin/Member/group.png"
+                alt="group"
+                className="w-[400px] h-fit"
+              />
+
+              <div className='text-[20px] fontMedium my-5'>
+                수강생이 없다면 추가해주세요!
+              </div>
+
+              <div
+                className='text-[20px] fontSB px-4 py-3 rounded-2xl bg-[#E7E7E7] cursor-pointer'
+                onClick={() => setModalOpen(true)}
+              >
+                수강생 추가하기
+              </div>
+            </div>
+          ) : (
+            <div className='flex flex-wrap my-2 justify-center mt-6 w-[80%] gap-2'>
               {cls.students.map((student) => (
                 <div
                   key={student.id}
-                  className='flex items-center py-4 cursor-pointer'
-                  onClick={() => handleSelectStudent(student)}
+                  className='flex justify-center items-center my-5 p-4 w-[32%]'
                 >
                   <img
                     src={student.photo}
                     alt={student.name}
                     className='w-16 h-16 rounded-full'
                   />
-                  <span
-                    className={`ml-6 fontSB ${
-                      selectedStudent?.id === student.id
-                        ? 'text-[#5A9CD0] text-[25px]'
-                        : 'text-[23px] text-[#000]'
-                    }`}
-                  >
-                    {student.name}
-                  </span>
+                  <span className='text-[22px] ml-6 mr-10 fontSB'>{student.name}</span>
+                  <IoCheckbox
+                    size={25}
+                    className={`cursor-pointer ${selected.includes(student.name) ? 'text-[#5A9CD0]' : 'text-[#888]'}`}
+                    onClick={() => toggleSelect(student.name)}
+                  />
                 </div>
               ))}
             </div>
+          )}
 
-            {/* 오른쪽: 안내 영역 */}
-            {selectedStudent === null && (
-              <div className="flex flex-col items-center justify-center w-full h-full">
-                <img
-                  src="/assets/images/Admin/Student/student.png"
-                  alt="select prompt"
-                  className="w-[40%] mb-4"
-                />
-                <span className='text-[20px] fontMedium text-[#333] text-center'>
-                  수강생을 선택해 주세요!
-                </span>
+          {/* 전체선택 / 삭제 */}
+          {cls.students.length > 0 && (
+            <div className='flex w-[90%] h-full pb-12 items-end justify-end'>
+              <div className='flex text-[18px] text-[#777] fontSB cursor-pointer' onClick={selectAll}>
+                전체선택
               </div>
-            )}
-          </div>
+              <div className='flex text-[18px] text-[#5A9CD0] fontSB ml-10'>삭제</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,7 +244,7 @@ export default function AdminStudent() {
 
             <div className='flex flex-col justify-between'>
               <label className='text-[18px] fontMedium'>그룹 색상<span className='text-red-500'>*</span></label>
-              <div className="flex flex-wrap gap-4 mt-5 mb-6 ">
+              <div className="flex flex-wrap gap-4 mt-5 mb-6">
                 {colors.map((color) => (
                   <div
                     key={color}
@@ -205,8 +258,8 @@ export default function AdminStudent() {
                 ))}
               </div>
             </div>
-            
-            <div className='flex items-center mt-5 '>
+
+            <div className='flex items-center mt-5'>
               <div className='flex text-[18px] text-[#333] fontMedium'>
                 그룹 코드
               </div>
@@ -222,11 +275,33 @@ export default function AdminStudent() {
               </div>
               <div
                 className='flex text-[18px] text-[#5A9CD0] fontSB cursor-pointer'
-                onClick={() => {
-                  cls.name = groupName;
-                  cls.desc = groupDesc;
-                  cls.color = selectedColor;
-                  setEditModalOpen(false);
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem("accessToken");
+                    const body = {
+                      className: groupName,
+                      title: groupName,
+                      description: groupDesc,
+                      colorId: colors.indexOf(selectedColor) + 1,
+                    };
+
+                    await axios.patch(`${API_URL}/class/edit/${cls.id}`, body, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    setCls(prev => ({
+                      ...prev,
+                      name: groupName,
+                      desc: groupDesc,
+                      color: selectedColor,
+                    }));
+
+                    alert("그룹이 성공적으로 수정되었습니다.");
+                    setEditModalOpen(false);
+                  } catch (error) {
+                    console.error(error);
+                    alert("그룹 수정에 실패했습니다.");
+                  }
                 }}
               >
                 저장

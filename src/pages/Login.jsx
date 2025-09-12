@@ -7,7 +7,7 @@ import { saveToken } from "../utils/authStorage";
 const AuthForm = ({ title, onSubmit, children }) => (
   <form
     onSubmit={onSubmit}
-    className="w-full h-full flex flex-col justify-center px-20 text-center bg-white"
+    className="flex flex-col justify-center w-full h-full px-20 text-center bg-white"
   >
     <h1 className="font-bold text-4xl mb-4 text-[#333333]">{title}</h1>
     {children}
@@ -34,7 +34,7 @@ const OverlayPanel = ({ title, buttonText, onClick, alignment, textAlign }) => (
       <p>같은 재미 요소를 활용하여 비장애인이 보다 쉽고 재미있게</p>
       <p>학습할 수 있도록 돕는 서비스입니다.</p>
     </div>
-    <div className="text-center flex flex-col items-center justify-center w-full mt-5">
+    <div className="flex flex-col items-center justify-center w-full mt-5 text-center">
       <p className="font-medium mb-3 text-[#333333]">{title}</p>
       <button
         type="button"
@@ -135,7 +135,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 font-sans">
+    <div className="flex items-center justify-center min-h-screen font-sans bg-gray-100">
       <div className="relative w-[1280px] h-[720px] bg-white shadow-2xl rounded-3xl overflow-hidden">
         {/* Sign-Up Form */}
         <div
@@ -149,7 +149,7 @@ const Login = () => {
             <input
               type="text"
               placeholder="이름"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={signUpData.username}
               onChange={(e) =>
                 setSignUpData({ ...signUpData, username: e.target.value })
@@ -158,7 +158,7 @@ const Login = () => {
             <input
               type="text"
               placeholder="아이디"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={signUpData.loginId}
               onChange={(e) =>
                 setSignUpData({ ...signUpData, loginId: e.target.value })
@@ -167,7 +167,7 @@ const Login = () => {
             <input
               type="email"
               placeholder="이메일"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={signUpData.email}
               onChange={(e) =>
                 setSignUpData({ ...signUpData, email: e.target.value })
@@ -176,7 +176,7 @@ const Login = () => {
             <input
               type="password"
               placeholder="비밀번호"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={signUpData.password}
               onChange={(e) =>
                 setSignUpData({ ...signUpData, password: e.target.value })
@@ -185,7 +185,7 @@ const Login = () => {
             <input
               type="password"
               placeholder="비밀번호 확인"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={signUpData.confirmPassword}
               onChange={(e) =>
                 setSignUpData({
@@ -213,14 +213,14 @@ const Login = () => {
             <input
               type="text"
               placeholder="아이디"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={loginId}
               onChange={(e) => setLoginId(e.target.value)}
             />
             <input
               type="password"
               placeholder="비밀번호"
-              className="bg-gray-100 shadow-inner w-full p-3 my-2 rounded-full border-none"
+              className="w-full p-3 my-2 bg-gray-100 border-none rounded-full shadow-inner"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

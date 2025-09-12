@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import AdminTitle from '../../../components/AdminTitle';
 import AdminNav from '../../../components/AdminNav';
 import { IoCheckbox } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
-import { IoPersonAdd } from "react-icons/io5";
-import { IoCopyOutline } from "react-icons/io5";
-import { classes } from '../../../data/classes';
+import { IoPersonAdd, IoCopyOutline } from "react-icons/io5";
+import { API_URL } from '../../../config';
+import axios from 'axios';
 
 const colors = [
   "#DEE6F1",
@@ -20,16 +20,46 @@ const colors = [
 
 export default function AdminGroup() {
   const { code } = useParams();
-  const cls = classes.find(c => c.code === code);
-
+  const [cls, setCls] = useState(null);
+  const [groupName, setGroupName] = useState("");
+  const [groupDesc, setGroupDesc] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [selected, setSelected] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  // 그룹 수정용 상태
-  const [groupName, setGroupName] = useState(cls?.name || "");
-  const [groupDesc, setGroupDesc] = useState(cls?.desc || "");
-  const [selectedColor, setSelectedColor] = useState(cls?.color || "");
+  useEffect(() => {
+    const fetchClass = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const res = await axios.get(`${API_URL}/class/${code}/select`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = res.data.data;
+
+        const classData = {
+          id: data.class_id,
+          name: data.class_name,
+          desc: data.description,
+          code: data.class_code,
+          color: colors[(data.color_id || 1) - 1],
+          students: data.students || [], // 백에서 학생 목록 받는 경우
+        };
+
+        setCls(classData);
+        setGroupName(classData.name);
+        setGroupDesc(classData.desc);
+        setSelectedColor(classData.color);
+      } catch (error) {
+        console.error(error);
+        alert("클래스 조회에 실패했습니다.");
+      }
+    };
+
+    fetchClass();
+  }, [code]);
 
   const toggleSelect = (name) => {
     setSelected(prev =>
@@ -84,11 +114,9 @@ export default function AdminGroup() {
             <div className='flex items-center justify-between w-full mt-3'>
               <div className='flex items-center'>
                 <div className='flex text-[20px] text-[#777] fontSB'>#{cls.code}</div>
-                
                 <div className='flex text-[20px] text-[#777] mx-1 fontSB cursor-pointer' onClick={copyGroupId}>
                   <IoCopyOutline />
                 </div>
-
                 <div
                   className='flex ml-3 w-[30px] h-[30px] rounded-2xl'
                   style={{ backgroundColor: cls.color }}
@@ -200,7 +228,7 @@ export default function AdminGroup() {
                 type="text"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                className="bg-transparent  mt-5 px-4 py-3 border-[1.5px] border-[#555552] rounded-xl focus:outline-none focus:border-[#5A9CD0] mb-6"
+                className="bg-transparent mt-5 px-4 py-3 border-[1.5px] border-[#555552] rounded-xl focus:outline-none focus:border-[#5A9CD0] mb-6"
               />
             </div>
 
@@ -210,13 +238,13 @@ export default function AdminGroup() {
                 type="text"
                 value={groupDesc}
                 onChange={(e) => setGroupDesc(e.target.value)}
-                className="bg-transparent  mt-5 px-4 py-3 border-[1.5px] border-[#555552] rounded-xl focus:outline-none focus:border-[#5A9CD0] mb-6"
+                className="bg-transparent mt-5 px-4 py-3 border-[1.5px] border-[#555552] rounded-xl focus:outline-none focus:border-[#5A9CD0] mb-6"
               />
             </div>
 
             <div className='flex flex-col justify-between'>
               <label className='text-[18px] fontMedium'>그룹 색상<span className='text-red-500'>*</span></label>
-              <div className="flex flex-wrap gap-4 mt-5 mb-6 ">
+              <div className="flex flex-wrap gap-4 mt-5 mb-6">
                 {colors.map((color) => (
                   <div
                     key={color}
@@ -230,8 +258,8 @@ export default function AdminGroup() {
                 ))}
               </div>
             </div>
-            
-            <div className='flex items-center mt-5 '>
+
+            <div className='flex items-center mt-5'>
               <div className='flex text-[18px] text-[#333] fontMedium'>
                 그룹 코드
               </div>
@@ -247,11 +275,33 @@ export default function AdminGroup() {
               </div>
               <div
                 className='flex text-[18px] text-[#5A9CD0] fontSB cursor-pointer'
-                onClick={() => {
-                  cls.name = groupName;
-                  cls.desc = groupDesc;
-                  cls.color = selectedColor;
-                  setEditModalOpen(false);
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem("accessToken");
+                    const body = {
+                      className: groupName,
+                      title: groupName,
+                      description: groupDesc,
+                      colorId: colors.indexOf(selectedColor) + 1,
+                    };
+
+                    await axios.put(`${API_URL}/class/edit/${cls.id}`, body, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    setCls(prev => ({
+                      ...prev,
+                      name: groupName,
+                      desc: groupDesc,
+                      color: selectedColor,
+                    }));
+
+                    alert("그룹이 성공적으로 수정되었습니다.");
+                    setEditModalOpen(false);
+                  } catch (error) {
+                    console.error(error);
+                    alert("그룹 수정에 실패했습니다.");
+                  }
                 }}
               >
                 저장

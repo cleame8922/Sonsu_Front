@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { getToken } from "../../../utils/authStorage";
+import axios from "axios";
+import { API_URL } from "../../../config";
 
 const ProgressBar = ({ progress }) => {
   return (
@@ -16,50 +19,143 @@ const ProgressBar = ({ progress }) => {
 
 const ContinueLearning = () => {
   const currentLevel = "초급";
+  const [nextLesson, setNextLesson] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // API 연결 대신 더미 데이터 사용
-  const [nextLesson] = useState({
-    lessonCategory_id: 1,
-    word: "안녕하세요",
-    animation_path: "", // "" → 비디오 없는 경우
-  });
-  const [progress] = useState(40); // % 값
+  // API_URL 설정 (실제 사용 시 환경변수에서 가져와야 함)
+
+  const fetchProgress = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 다음 수업 정보 가져오기
+      const lessonResponse = await fetch(`${API_URL}/progress/continue`, {
+        method: "GET",
+        credentials: "include", // withCredentials와 동일
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!lessonResponse.ok) {
+        throw new Error(`HTTP error! status: ${lessonResponse.status}`);
+      }
+
+      const lessonData = await lessonResponse.json();
+      setNextLesson(lessonData.nextLesson[0]);
+
+      // 진도율 정보 가져오기
+      const progressResponse = await fetch(`${API_URL}/progress/percentage`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!progressResponse.ok) {
+        throw new Error(`HTTP error! status: ${progressResponse.status}`);
+      }
+
+      const progressData = await progressResponse.json();
+      const progressValue = parseInt(progressData.progress.replace("%", ""));
+      setProgress(progressValue);
+    } catch (error) {
+      console.error("진도율 또는 이어서 학습 정보 불러오기 실패:", error);
+      setError("데이터를 불러오는데 실패했습니다.");
+
+      // 오류 시 기본값 설정
+      setNextLesson({
+        lessonCategory_id: 1,
+        word: "안녕하세요",
+        animation_path: "",
+      });
+      setProgress(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  useEffect(() => {
+    fetchProgress();
+  }, [fetchProgress]);
+
+  const handleNavigateToClassroom = () => {
+    console.log("배움터로 이동");
+    window.location.href = "/classroom/easy";
+  };
+
+  if (loading) {
+    return (
+      <div className="my-12 w-[70%]">
+        <div className="flex justify-center items-center h-48">
+          <div className="text-gray-500">데이터를 불러오는 중...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="my-12 w-[70%]">
+        <div className="flex justify-center items-center h-48">
+          <div className="text-red-500">
+            {error}
+            <button
+              onClick={fetchProgress}
+              className="ml-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
+            >
+              다시 시도
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="my-12 w-[70%]">
       {/* 타이틀 */}
       <div className="flex justify-between items-center">
-        <p className="text-[20px] fontSB">이어서 학습하기</p>
+        <p className="text-[20px] font-semibold">이어서 학습하기</p>
       </div>
 
       {/* 컨텐츠 */}
       <div className="flex justify-around mt-6">
         {/* 왼쪽 (이미지/영상) */}
         <div className="w-[128px] h-[174px] bg-[#CEE9C4] rounded-2xl flex items-center justify-center overflow-hidden">
-          {nextLesson.animation_path ? (
+          {nextLesson?.animation_path ? (
             <video
               src={nextLesson.animation_path}
               autoPlay
               loop
               muted
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error("Video loading failed:", e);
+                // 비디오 로딩 실패 시 기본 이미지로 대체할 수 있음
+              }}
             />
           ) : (
-            <img
-              src="/assets/images/sonsuModel.png"
-              alt="lesson"
-              className="w-full h-full object-contain"
-            />
+            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+              <span className="text-gray-500 text-xs text-center px-2">
+                {nextLesson?.word || "이미지"}
+              </span>
+            </div>
           )}
         </div>
 
         {/* 오른쪽 (정보) */}
         <div className="flex flex-col flex-1 pl-8 justify-between py-4">
           <div>
-            <p className="text-[20px] fontEB">
-              Part {nextLesson.lessonCategory_id}. {nextLesson.word}
+            <p className="text-[20px] font-bold">
+              Part {nextLesson?.lessonCategory_id || 1}.{" "}
+              {nextLesson?.word || "로딩 중..."}
             </p>
-            <p className="text-[18px] fontLight mt-1">{currentLevel}</p>
+            <p className="text-[18px] font-light mt-1">{currentLevel}</p>
           </div>
 
           {/* 진도율 */}
@@ -67,7 +163,10 @@ const ContinueLearning = () => {
 
           {/* 버튼 */}
           <div className="flex justify-center mt-3">
-            <button className="bg-[#F7EABF] py-2 rounded-full shadow-md w-[60%] text-sm fontMedium">
+            <button
+              onClick={handleNavigateToClassroom}
+              className="bg-[#F7EABF] py-2 rounded-full shadow-md w-[60%] text-sm font-medium hover:bg-[#f5e1a3] transition-colors"
+            >
               배움터 바로가기
             </button>
           </div>

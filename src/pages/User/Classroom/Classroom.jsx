@@ -105,48 +105,6 @@ export default function Classroom() {
             <p className="text-[#777] font-semibold text-[20px]">#12345</p>
           </div>
 
-          {/* 진도 표시 */}
-          {/* <div className="mb-4 text-center">
-            <p className="text-lg font-semibold">
-              학습진도:
-              <span className="text-blue-600 ml-2">
-                {getCurrentLevelProgress()}
-              </span>
-              / {lessons.length} 강의
-            </p>
-          </div> */}
-
-          {/* 다음 강의 표시 (앱과 유사한 UI) */}
-          {/* {nextLesson && (
-            <div className="mb-6 p-4 bg-white rounded-[20px] shadow-lg">
-              <h3 className="text-lg font-semibold mb-3">이어서 학습하기</h3>
-              <div className="flex items-center p-3 bg-blue-50 rounded-[15px]">
-                <div className="p-3 rounded-[10px] bg-white shadow-sm">
-                  <img
-                    src="/assets/images/Sign.png"
-                    alt=""
-                    className="w-12 h-12"
-                  />
-                </div>
-                <div className="ml-4 flex-1">
-                  <p className="font-bold">
-                    Step {nextLesson.step_number}. {nextLesson.word}
-                  </p>
-                  <p className="text-sm text-gray-600">{nextLesson.category}</p>
-                </div>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                  onClick={() => {
-                    // 다음 강의로 이동하는 로직
-                    navigate(`/study/${nextLesson.lesson_id}`);
-                  }}
-                >
-                  학습하기
-                </button>
-              </div>
-            </div>
-          )} */}
-
           <div
             className={`px-10 py-8 rounded-[40px] h-[85%] overflow-y-auto`}
             style={{ backgroundColor: levelBgColor[level] }}

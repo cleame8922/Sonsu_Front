@@ -22,7 +22,10 @@ export default function UserNav() {
         if (!token) return;
 
         const response = await axios.get(`${API_URL}/login/success`, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
           withCredentials: true,
         });
 
@@ -51,7 +54,7 @@ export default function UserNav() {
 
   const handleClick = (menu) => {
     setSelected(menu);
-    if (menu === "학습") navigate("/Classroom_Easy");
+    if (menu === "학습") navigate("/Classroom/easy");
     // if (menu === "복습") navigate("/Review");
     if (menu === "마이페이지") navigate("/mypage");
   };
@@ -61,11 +64,16 @@ export default function UserNav() {
     if (sub === "초급") navigate("/Classroom/easy");
     if (sub === "중급") navigate("/Classroom/normal");
     if (sub === "고급") navigate("/Classroom/hard");
-    if (sub === "OX 퀴즈") navigate("/OX");
+    if (sub === "OX 퀴즈") navigate("/quiz/info");
     if (sub === "스피드 게임") navigate("/speed/info");
   };
 
-  const userMenuItems = ["프로필 설정", "수업 참여하기", "SONSU CLASS", "로그아웃"];
+  const userMenuItems = [
+    "프로필 설정",
+    "수업 참여하기",
+    "SONSU CLASS",
+    "로그아웃",
+  ];
 
   const handleUserMenuClick = async (item) => {
     if (item === "로그아웃") {
@@ -77,7 +85,10 @@ export default function UserNav() {
           `${API_URL}/logout`,
           {},
           token
-            ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+            ? {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+              }
             : { withCredentials: true }
         );
       } catch (error) {
@@ -126,13 +137,22 @@ export default function UserNav() {
   return (
     <div className="flex flex-col w-[16%] mx-14 relative overflow-visible">
       <div className="flex flex-col">
-        <img  src="/assets/images/logo.png" alt="logo" className="w-[100px] cursor-pointer" onClick={() => navigate("/")} />
+        <img
+          src="/assets/images/logo.png"
+          alt="logo"
+          className="w-[100px] cursor-pointer"
+          onClick={() => navigate("/")}
+        />
 
         {menus.map((menu) => (
           <div key={menu} className="flex flex-col">
             <div
-              onMouseEnter={() => (menu === "학습" || menu === "복습" ? setIsHover(menu) : null)}
-              onMouseLeave={() => (menu === "학습" || menu === "복습" ? setIsHover(false) : null)}
+              onMouseEnter={() =>
+                menu === "학습" || menu === "복습" ? setIsHover(menu) : null
+              }
+              onMouseLeave={() =>
+                menu === "학습" || menu === "복습" ? setIsHover(false) : null
+              }
             >
               <div
                 className={`flex my-5 cursor-pointer ${
@@ -145,16 +165,26 @@ export default function UserNav() {
 
               {/* 하위 메뉴 */}
               {(menu === "학습" || menu === "복습") && (
-                <div className={`overflow-hidden transition-all duration-300 ${isHover === menu ? "max-h-40" : "max-h-0"}`}>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isHover === menu ? "max-h-40" : "max-h-0"
+                  }`}
+                >
                   {subMenus[menu].map((sub) => (
                     <div
                       key={sub}
                       onClick={() => handleSubClick(sub)}
                       className="ml-5 my-4 text-[18px] cursor-pointer transition-colors duration-200"
-                      style={{ color: selected === sub ? subMenuColors[sub] : "#666666" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = subMenuColors[sub])}
+                      style={{
+                        color:
+                          selected === sub ? subMenuColors[sub] : "#666666",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = subMenuColors[sub])
+                      }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = selected === sub ? subMenuColors[sub] : "#666666")
+                        (e.currentTarget.style.color =
+                          selected === sub ? subMenuColors[sub] : "#666666")
                       }
                     >
                       {sub}

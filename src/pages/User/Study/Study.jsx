@@ -5,6 +5,7 @@ import UserNav from "../../../components/UserNav";
 import { API_URL } from "../../../config";
 import { serverIP } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 
 export default function Study() {
   const location = useLocation();
@@ -14,6 +15,8 @@ export default function Study() {
   const [error, setError] = useState(null);
   const [videoSrc, setVideoSrc] = useState(`${serverIP}/video_feed`);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [bookmarkedSteps, setBookmarkedSteps] = useState([]);
+  const { level, partId } = useParams();
 
   // location.state에서 topic, lesson, index 받기 (앱과 동일)
   const { topic, lesson, index } = location.state || {};
@@ -106,6 +109,64 @@ export default function Study() {
     startLesson();
   }, [topic, lessonId]);
 
+  // 북마크 토글 함수
+  const handleBookmark = async (stepId) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      if (bookmarkedSteps.includes(stepId)) {
+        // 북마크 삭제
+        const res = await fetch(`${API_URL}/review/delete/${stepId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setBookmarkedSteps((prev) => prev.filter((id) => id !== stepId));
+        alert(data.message);
+      } else {
+        // 북마크 추가
+        const res = await fetch(`${API_URL}/review/save`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ lessonId: stepId }),
+        });
+        const data = await res.json();
+        setBookmarkedSteps((prev) => [...prev, stepId]);
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("북마크 처리 실패:", err);
+      alert("북마크 처리 실패");
+    }
+  };
+
+  // 북마크 상태 초기화 (렌더링 시 현재 북마크 가져오기)
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        const token = getToken();
+        if (!token) return;
+
+        const res = await fetch(`${API_URL}/review/lessons`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setBookmarkedSteps(data.map((item) => item.lesson_id));
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      }
+    };
+
+    fetchBookmarks();
+  }, []);
+
   // 현재 topic 또는 stepData에서 표시할 데이터 결정
   const currentTopic = topic || stepData;
   const displayTitle = currentTopic
@@ -119,10 +180,24 @@ export default function Study() {
         <UserNav />
         <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-12 py-9 overflow-y-auto">
           <div className="flex justify-center space-x-20">
-            <div className="text-left">
-              <h1 className="text-[30px] font-bold mt-[33px] text-[#333] m-0">
-                {displayTitle}
-              </h1>
+            <div className="text-left ">
+              <div className="flex items-center mt-[33px]">
+                <h1 className="text-[30px] font-bold  text-[#333]">
+                  {displayTitle}
+                </h1>
+                <div
+                  className="ml-6 cursor-pointer"
+                  onClick={(e) => {
+                    handleBookmark(currentTopic.lesson_id);
+                  }}
+                >
+                  {bookmarkedSteps.includes(currentTopic.lesson_id) ? (
+                    <FaBookmark size={24} color="#333" />
+                  ) : (
+                    <FaRegBookmark size={24} />
+                  )}
+                </div>
+              </div>
 
               {/* 설명 텍스트 */}
               <div className="flex justify-center mt-12">

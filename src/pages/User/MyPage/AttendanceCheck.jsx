@@ -6,20 +6,31 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [attendanceData, setAttendanceData] = useState([]);
-  const ref = useRef(null);
+  const containerRef = useRef(null);
+  const bubbleRef = useRef(null);
 
-  //   바깥 클릭 감지
+  //   바깥 클릭 감지 - 컨테이너와 말풍선 모두 제외
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+      // containerRef와 bubbleRef 둘 다 체크
+      const isClickInsideContainer =
+        containerRef.current && containerRef.current.contains(event.target);
+      const isClickInsideBubble =
+        bubbleRef.current && bubbleRef.current.contains(event.target);
+
+      if (!isClickInsideContainer && !isClickInsideBubble) {
         setIsActive(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [setIsActive]);
+  }, [isActive, setIsActive]);
 
   // 출석 데이터 Fetch
   useEffect(() => {
@@ -40,7 +51,7 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
           withCredentials: true,
         });
         const data = await response.json();
-        setAttendanceData(data);
+        setAttendanceData(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
         console.error("출석 데이터 가져오기 실패", error);
       }
@@ -175,15 +186,15 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative">
       <div
+        ref={containerRef}
         onClick={() => setIsActive(!isActive)}
         className={`bg-[#FFEEB8] rounded-[20px] pl-8 pt-6 w-full shadow-lg h-[200px]
-                   transform transition duration-300 ease-in-out
-                   cursor-pointer
-                   ${
-                     isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"
-                   }`}
+             transform transition duration-300 ease-in-out
+             cursor-pointer
+             ${isActive ? "scale-110 shadow-2xl" : "scale-100 shadow-lg"}
+             ${isActive ? "filter brightness-105" : ""}`}
       >
         <p className="fontSB text-[24px]">출석체크</p>
         <div className="fontSB text-[13px] text-[#555] mt-3">
@@ -202,7 +213,10 @@ export default function AttendanceCheck({ isActive, setIsActive }) {
 
       {/* 클릭 시 나오는 말풍선 */}
       {isActive && (
-        <div className="absolute -left-10 top-0 mt-0 -translate-x-full w-[500px] p-6 bg-white rounded-xl shadow-2xl z-50 transform transition duration-300 ease-in-out max-h-[600px] overflow-y-auto">
+        <div
+          ref={bubbleRef}
+          className="absolute -left-10 top-0 mt-0 -translate-x-full w-[500px] p-6 bg-white rounded-xl shadow-2xl z-50 transform transition duration-300 ease-in-out max-h-[600px] overflow-y-auto"
+        >
           {/* 헤더 */}
           <div className="flex justify-center items-center mb-4">
             <div className="flex items-center gap-4">

@@ -1,29 +1,61 @@
-import React from 'react'
+import React from "react";
 import { CgShapeCircle } from "react-icons/cg";
-import { IoClose } from "react-icons/io5";
-import { NavLink } from 'react-router-dom';
+import UserNav from "../../../components/UserNav";
+import UserTitle from "../../../components/UserTitle";
+import { useNavigate } from "react-router-dom";
 
 export default function QuizInfo() {
-    return (
-        <div>
-            <div className='flex justify-center h-screen items-centers bg-gradient-to-b from-[#fffdef]'>
-                <div className="flex w-[100%]">
-                    <div className="flex justify-center items-center w-[100%]">
-                        <img src="/images/report.png" alt="report" className='flex w-[350px]' />
-                        <div className='flex flex-col items-center justify-center'>
-                            <div className='flex w-fit text-center font-bold text-[40px]'>화면에 나타나는 수어 동작과 해당 수어가 맞는지 확인하고</div>
-                            <div className='flex w-fit text-center font-bold text-[40px]'>수어가 맞다면 <div className='ml-2 text-[red]'>O</div>를 틀리다면 <div className='ml-2 text-[red]'>X</div>를 눌러주세요.</div>
-                            <div className='flex justify-between w-[500px] mt-11'>
-                                <CgShapeCircle className='size-[170px] text-[red]'/>
-                                <IoClose className='size-[180px] text-[red]' />
-                            </div>
-                            <NavLink to='/Quiz' className="mt-11 px-10 py-3 text-[20px] font-bold text-white transition-colors bg-yellow-500 rounded-lg hover:bg-yellow-400">
-                                다음
-                            </NavLink>
-                        </div>
-                    </div>
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-[#F28079]">
+      <UserTitle />
+      <div className="flex w-full">
+        <UserNav />
+        <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#fafafa] shadow-xl h-[850px] px-12 py-9 overflow-y-auto">
+          <img
+            src="/assets/images/review/OXTitle.png"
+            alt="OX 타이틀"
+            className="w-[150px] m-3"
+          />
+          <div className="flex justify-around w-full h-full">
+            <div className="flex items-center justify-center">
+              <div>
+                <img
+                  src="/assets/images/sonsu.png"
+                  alt="sonsu"
+                  className="w-[250px]"
+                />
+                <div className="flex mt-5 text-[20px] text-[#000000] fontMedium text-center justify-center">
+                  캐릭터의 수어를 보고
+                  <br /> 정답을 맞춰보세요!
                 </div>
+              </div>
             </div>
+
+            <div className="flex flex-col items-center justify-center -mt-20">
+              <div className="flex text-[30px] fontSB">📌 Tips 📌</div>
+              <div className="flex text-[20px] mt-16 text-center">
+                배움터에서 5개 이상의 학습을 진행해주세요! 📚
+              </div>
+              <div className="flex space-x-3">
+                <div
+                  className="flex text-[#fff] fontSB text-[20px] px-12 py-3 mt-12 rounded-full bg-[#F28079]"
+                  onClick={() => navigate("/Classroom/easy")}
+                >
+                  학습하러 가기
+                </div>{" "}
+                <div
+                  className="flex text-[#fff] fontSB text-[20px] px-12 py-3 mt-12 rounded-full bg-[#F28079]"
+                  onClick={() => navigate("/quiz")}
+                >
+                  시작하기{" "}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }

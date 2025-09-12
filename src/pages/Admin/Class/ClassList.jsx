@@ -10,7 +10,7 @@ import { API_URL } from "../../../config";
 export default function ClassList() {
   const navigate = useNavigate();
 
-  const [classes, setClasses] = useState([]); 
+  const [classes, setClasses] = useState([]);
   const [sortType, setSortType] = useState("latest");
   const [search, setSearch] = useState("");
 
@@ -34,6 +34,7 @@ export default function ClassList() {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log("API_URL:", API_URL);
 
         const data = res.data.data || [];
         setClasses(data);

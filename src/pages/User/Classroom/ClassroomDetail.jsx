@@ -6,12 +6,14 @@ import UserTitle from "../../../components/UserTitle";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import { FiLock } from "react-icons/fi";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 
 export default function ClassroomDetail() {
   const { level, partId } = useParams();
   const navigate = useNavigate();
   const [steps, setSteps] = useState([]);
   const [progress, setProgress] = useState([]);
+  const [bookmarkedSteps, setBookmarkedSteps] = useState([]);
 
   // 레벨별 배경색
   const levelBgColor = {
@@ -59,9 +61,55 @@ export default function ClassroomDetail() {
       }
     };
 
+    const fetchBookmarks = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+
+        const res = await axios.get(`${API_URL}/review/lessons`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBookmarkedSteps(res.data.map((item) => item.lesson_id));
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      }
+    };
+
+    fetchBookmarks();
     fetchSteps();
     fetchProgress();
   }, [partId]);
+
+  const handleBookmark = async (stepId) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      if (bookmarkedSteps.includes(stepId)) {
+        // 삭제
+        const res = await axios.delete(`${API_URL}/review/delete/${stepId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBookmarkedSteps((prev) => prev.filter((id) => id !== stepId));
+        alert(res.data.message);
+      } else {
+        // 추가
+        const res = await axios.post(
+          `${API_URL}/review/save`,
+          { lessonId: stepId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setBookmarkedSteps((prev) => [...prev, stepId]);
+        alert(res.data.message);
+      }
+    } catch (err) {
+      console.error("북마크 처리 실패:", err);
+      alert("북마크 처리 실패");
+    }
+  };
 
   // 앱과 동일한 잠금 로직
   const isStepLocked = (step, index) => {
@@ -197,13 +245,24 @@ export default function ClassroomDetail() {
                       )}
                     </div>
 
-                    <div className="flex flex-col justify-center ml-4">
+                    <div className="flex items-center justify-center ml-4">
                       <p className={`font-bold text-lg`}>
                         Step {step.step_number}. {step.word}
                       </p>
-
-                      {isLocked && (
-                        <p className="text-xs text-gray-500 mt-1">잠김</p>
+                      {!isLocked && (
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation(); // 이벤트 버블링 막기
+                            handleBookmark(step.lesson_id);
+                          }}
+                          className="ml-8"
+                        >
+                          {bookmarkedSteps.includes(step.lesson_id) ? (
+                            <FaBookmark size={20} color="#333" />
+                          ) : (
+                            <FaRegBookmark size={20} />
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

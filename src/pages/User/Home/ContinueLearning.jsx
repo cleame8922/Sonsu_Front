@@ -24,43 +24,41 @@ const ContinueLearning = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // API_URL 설정 (실제 사용 시 환경변수에서 가져와야 함)
-
   const fetchProgress = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // 다음 수업 정보 가져오기
-      const lessonResponse = await fetch(`${API_URL}/progress/continue`, {
-        method: "GET",
-        credentials: "include", // withCredentials와 동일
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!lessonResponse.ok) {
-        throw new Error(`HTTP error! status: ${lessonResponse.status}`);
+      const token = getToken();
+      if (!token) {
+        console.log("토큰이 없습니다.");
+        return;
       }
 
-      const lessonData = await lessonResponse.json();
-      setNextLesson(lessonData.nextLesson[0]);
+      // 다음 수업 정보 가져오기
+      const lessonResponse = await axios.get(`${API_URL}/progress/continue`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      setNextLesson(lessonResponse.data.nextLesson[0]);
 
       // 진도율 정보 가져오기
-      const progressResponse = await fetch(`${API_URL}/progress/percentage`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const progressResponse = await axios.get(
+        `${API_URL}/progress/percentage`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
-      if (!progressResponse.ok) {
-        throw new Error(`HTTP error! status: ${progressResponse.status}`);
-      }
-
-      const progressData = await progressResponse.json();
+      const progressData = progressResponse.data;
       const progressValue = parseInt(progressData.progress.replace("%", ""));
       setProgress(progressValue);
     } catch (error) {
@@ -77,7 +75,7 @@ const ContinueLearning = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   useEffect(() => {
     fetchProgress();
@@ -136,7 +134,6 @@ const ContinueLearning = () => {
               className="w-full h-full object-cover"
               onError={(e) => {
                 console.error("Video loading failed:", e);
-                // 비디오 로딩 실패 시 기본 이미지로 대체할 수 있음
               }}
             />
           ) : (

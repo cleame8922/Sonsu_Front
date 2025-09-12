@@ -66,7 +66,7 @@ export default function Review() {
               lesson={lesson}
               index={index}
               onClick={() =>
-                navigate("/study", {
+                navigate(`/study/${lesson.lesson_id}`, {
                   state: {
                     topic: {
                       word: lesson.word,

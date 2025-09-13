@@ -6,29 +6,56 @@ import { API_URL } from "../../../config";
 import { serverIP } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
+import axios from "axios";
 
 export default function Study() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { lessonId } = useParams();
+  const { lessonId, level, partId } = useParams();
   const [lessons, setLessons] = useState([]);
   const [error, setError] = useState(null);
   const [videoSrc, setVideoSrc] = useState(`${serverIP}/video_feed`);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [bookmarkedSteps, setBookmarkedSteps] = useState([]);
-  const { level, partId } = useParams();
 
-  // location.state에서 topic, lesson, index 받기 (앱과 동일)
+  // location.state에서 topic, lesson, index 받기
   const { topic, lesson, index } = location.state || {};
 
   const [animation, setAnimation] = useState("");
   const [stepData, setStepData] = useState(null);
+  const [allStepsInPart, setAllStepsInPart] = useState([]);
 
   console.log("레슨아이디", lesson);
 
   const levelId = { easy: 1, normal: 2, hard: 3 };
 
-  // 토픽 데이터 가져오기 (앱과 동일한 로직)
+  // 현재 파트의 모든 스텝 가져오기
+  const fetchAllStepsInPart = async () => {
+    try {
+      const currentPartId = lesson?.id || partId;
+      if (!currentPartId) return;
+
+      const response = await fetch(
+        `${API_URL}/lessons/${currentPartId}/topics`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setAllStepsInPart(data);
+        console.log("현재 파트의 모든 스텝:", data);
+      }
+    } catch (error) {
+      console.log("파트 스텝 불러오기 실패:", error.message);
+    }
+  };
+
+  // 토픽 데이터 가져오기
   const fetchTopic = async () => {
     try {
       const response = await fetch(
@@ -62,9 +89,7 @@ export default function Study() {
     }
   };
 
-  console.log("비디오 여기", animation);
-
-  // 강의 시작하기 (앱과 동일한 로직)
+  // 강의 시작하기
   const startLesson = async () => {
     try {
       const targetLessonId = topic?.lesson_id || lessonId;
@@ -93,20 +118,10 @@ export default function Study() {
     }
   };
 
-  // 혼자 해보기 버튼 클릭
-  //   const handlePractice = () => {
-  //     navigate("/study-only", {
-  //       state: {
-  //         topic: topic || stepData,
-  //         lesson,
-  //         index,
-  //       },
-  //     });
-  //   };
-
   useEffect(() => {
     fetchTopic();
     startLesson();
+    fetchAllStepsInPart();
   }, [topic, lessonId]);
 
   // 북마크 토글 함수
@@ -147,7 +162,7 @@ export default function Study() {
     }
   };
 
-  // 북마크 상태 초기화 (렌더링 시 현재 북마크 가져오기)
+  // 북마크 상태 초기화
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
@@ -167,11 +182,114 @@ export default function Study() {
     fetchBookmarks();
   }, []);
 
+  // 파트의 모든 스텝이 완료되었는지 확인
+  const checkPartCompletion = async () => {
+    try {
+      const token = getToken();
+      if (!token) return false;
+
+      // 현재 파트의 완료된 스텝들 가져오기
+      const res = await axios.post(
+        `${API_URL}/progress/topics`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      const completedTopics = res.data || [];
+
+      // 현재 파트의 모든 스텝이 완료되었는지 확인
+      const allStepsCompleted = allStepsInPart.every((step) =>
+        completedTopics.some(
+          (completed) =>
+            completed.lesson_id === step.lesson_id &&
+            completed.status === "completed"
+        )
+      );
+
+      console.log("파트 완료 상태:", allStepsCompleted);
+      return allStepsCompleted;
+    } catch (error) {
+      console.error("파트 완료 확인 실패:", error);
+      return false;
+    }
+  };
+
+  // 다음 스텝으로 이동
+  const goToNextStep = () => {
+    if (!allStepsInPart.length) return;
+
+    const currentStepIndex = allStepsInPart.findIndex(
+      (step) => step.lesson_id === currentTopic?.lesson_id
+    );
+
+    if (currentStepIndex < allStepsInPart.length - 1) {
+      // 같은 파트 내의 다음 스텝으로 이동
+      const nextStep = allStepsInPart[currentStepIndex + 1];
+      navigate(`/study/${nextStep.lesson_id}`, {
+        state: {
+          topic: nextStep,
+          lesson: lesson,
+          index: currentStepIndex + 1,
+        },
+      });
+    } else {
+      // 파트의 마지막 스텝인 경우 - 파트 완료 후 classroom으로 이동
+      alert("이 파트의 모든 스텝을 완료했습니다!");
+      navigate(`/classroom/${level || "easy"}`);
+    }
+  };
+
   // 현재 topic 또는 stepData에서 표시할 데이터 결정
   const currentTopic = topic || stepData;
   const displayTitle = currentTopic
     ? `Step ${currentTopic.step_number || index + 1}. ${currentTopic.word}`
     : `Step ${lessonId}`;
+
+  // 학습완료
+  const completeLesson = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      const response = await axios.put(
+        `${API_URL}/lessons/complete`,
+        { lessonId: currentTopic.lesson_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("수강 완료:", response.data.message);
+
+        // 파트 완료 상태 확인
+        const isPartCompleted = await checkPartCompletion();
+
+        if (isPartCompleted) {
+          alert("파트를 모두 완료했습니다! 다음 파트가 해제되었습니다.");
+          navigate(`/classroom/${level || "easy"}`);
+        } else {
+          alert("스텝 완료! 다음 스텝을 진행해주세요.");
+          // 파트가 완료되지 않았으면 classroom으로 이동하여 다음 스텝 선택
+          navigate(`/classroom/${level || "easy"}/${lesson?.id || partId}`);
+        }
+      }
+    } catch (error) {
+      console.error("완료 요청 중 에러 발생:", error.message);
+      alert("수강 완료 처리에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FFE694]">
@@ -185,18 +303,20 @@ export default function Study() {
                 <h1 className="text-[30px] font-bold  text-[#333]">
                   {displayTitle}
                 </h1>
-                <div
-                  className="ml-6 cursor-pointer"
-                  onClick={(e) => {
-                    handleBookmark(currentTopic.lesson_id);
-                  }}
-                >
-                  {bookmarkedSteps.includes(currentTopic.lesson_id) ? (
-                    <FaBookmark size={24} color="#333" />
-                  ) : (
-                    <FaRegBookmark size={24} />
-                  )}
-                </div>
+                {currentTopic && (
+                  <div
+                    className="ml-6 cursor-pointer"
+                    onClick={(e) => {
+                      handleBookmark(currentTopic.lesson_id);
+                    }}
+                  >
+                    {bookmarkedSteps.includes(currentTopic.lesson_id) ? (
+                      <FaBookmark size={24} color="#333" />
+                    ) : (
+                      <FaRegBookmark size={24} />
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* 설명 텍스트 */}
@@ -212,6 +332,7 @@ export default function Study() {
                 </div>
               </div>
             </div>
+
             {/* 비디오 플레이어 */}
             {(currentTopic?.animation_path || animation) && (
               <div className="flex justify-end">
@@ -231,19 +352,6 @@ export default function Study() {
           </div>
 
           {/* 카메라 피드 */}
-          {/* <div className="flex justify-center mt-12">
-            <div className="w-[1000px] h-[450px] overflow-hidden rounded-[15px] bg-black border border-[#ddd]">
-              <iframe
-                src={`${API_URL}/game1/video_feed`}
-                className="w-full h-full bg-transparent border-none"
-                title="Camera Feed"
-                frameBorder="0"
-                allow="camera; microphone"
-                onError={(error) => console.log("Iframe error:", error)}
-              />
-            </div>
-          </div> */}
-
           <div className="flex justify-center h-full">
             {error ? (
               <div className="mt-4 text-red-500">{error}</div>
@@ -260,17 +368,25 @@ export default function Study() {
             )}
           </div>
 
-          {/* 혼자 해보기 버튼 */}
-          {/* <div className="flex justify-center">
+          {/* 버튼들 */}
+          <div className="flex justify-end space-x-5">
             <button
-              onClick={handlePractice}
+              onClick={goToNextStep}
               className="bg-[#FFE694] py-[7px] px-[30px] rounded-[8px] border-none cursor-pointer transition-all duration-200 shadow-[1px_3px_5px_rgba(0,0,0,0.3)] hover:transform hover:-translate-y-[2px] hover:shadow-[1px_5px_8px_rgba(0,0,0,0.4)]"
             >
               <span className="text-[21px] font-bold text-[#333] text-center">
-                혼자 해보기 →
+                다음 스텝
               </span>
             </button>
-          </div> */}
+            <button
+              onClick={completeLesson}
+              className="bg-[#FFE694] py-[7px] px-[30px] rounded-[8px] border-none cursor-pointer transition-all duration-200 shadow-[1px_3px_5px_rgba(0,0,0,0.3)] hover:transform hover:-translate-y-[2px] hover:shadow-[1px_5px_8px_rgba(0,0,0,0.4)]"
+            >
+              <span className="text-[21px] font-bold text-[#333] text-center">
+                학습 완료
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

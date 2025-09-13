@@ -111,39 +111,19 @@ export default function ClassroomDetail() {
     }
   };
 
-  // 앱과 동일한 잠금 로직
+  // 앱과 동일한 잠금 로직 (단순화 버전)
   const isStepLocked = (step, index) => {
-    if (index === 0) return false; // 첫 번째 step은 항상 열려있음
+    if (index === 0) return false; // 첫 번째 step은 항상 열림
 
-    // 현재 카테고리의 모든 lessons 가져오기
-    const categoryLessons = steps.filter(
-      (s) => s.lessonCategory_id === step.lessonCategory_id
+    // 이전 step
+    const prevStep = steps[index - 1];
+
+    // 이전 step이 완료되었는지 확인
+    const prevCompleted = progress.some(
+      (p) => p.lesson_id === prevStep.lesson_id && p.status === "completed"
     );
 
-    if (categoryLessons.length === 0) return true;
-
-    // 완료된 lessons 계산
-    const completedLessons = progress.filter((p) =>
-      categoryLessons.some(
-        (lesson) => lesson.lesson_id === p.lesson_id && p.status === "completed"
-      )
-    );
-
-    let count = completedLessons.length;
-
-    // 첫 번째 lesson이 완료되지 않았다면 count는 0
-    if (
-      categoryLessons[0] &&
-      !progress.some(
-        (p) =>
-          p.lesson_id === categoryLessons[0].lesson_id &&
-          p.status === "completed"
-      )
-    ) {
-      count = 0;
-    }
-
-    return index > count;
+    return !prevCompleted; // 이전 step 완료 안됐으면 잠금
   };
 
   // step이 완료되었는지 확인
@@ -151,11 +131,6 @@ export default function ClassroomDetail() {
     return progress.some(
       (p) => p.lesson_id === step.lesson_id && p.status === "completed"
     );
-  };
-
-  // 완료된 step 개수 계산
-  const getCompletedStepsCount = () => {
-    return steps.filter((step) => isStepCompleted(step)).length;
   };
 
   const handleStepClick = (step, index) => {
@@ -182,17 +157,6 @@ export default function ClassroomDetail() {
             <p className="text-[#222] font-bold text-[25px]">손수잇다</p>
             <p className="text-[#777] font-semibold text-[20px]">#12345</p>
           </div>
-
-          {/* 진도 표시 */}
-          {/* <div className="mb-4 text-center">
-            <p className="text-lg font-semibold">
-              학습진도:
-              <span className="text-green-600 ml-2">
-                {getCompletedStepsCount()}
-              </span>
-              / {steps.length} 강의
-            </p>
-          </div> */}
 
           <div
             className={`px-10 py-8 rounded-[40px] h-[85%] overflow-y-auto`}

@@ -117,6 +117,7 @@ const Login = () => {
           loginId: signUpData.loginId,
           email: signUpData.email,
           password: signUpData.password,
+          confirmPassword: signUpData.confirmPassword,
         },
         { withCredentials: true } // 쿠키 기반 인증 필요시
       );

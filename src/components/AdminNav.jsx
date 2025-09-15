@@ -76,7 +76,7 @@ export default function AdminNav() {
         navigate("/");
       }
     } else if (item === "손수잇다") {
-      navigate("/");
+      navigate("/home");
     } else {
       console.log(item + " 클릭됨");
     }

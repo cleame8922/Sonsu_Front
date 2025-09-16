@@ -17,7 +17,7 @@ export default function Main2() {
       {/* 말풍선 */}
       <div className="relative mt-32 min-h-[800px] w-[80%] mx-auto">
         {/* #게임처럼_배우는_수어학습 */}
-        <div className="absolute top-0 left-1/4 -translate-x-1/2">
+        <div className="absolute top-0 -translate-x-1/2 left-1/4">
           <div className="shadow-xl w-fit px-20 py-10 rounded-tl-[6rem] rounded-tr-[6rem] rounded-br-[6rem] bg-gradient-to-b from-white/70 to-white/100">
             <div className="text-[#DFAB00] font-bold text-[28px]">
               #게임처럼_배우는_수어학습

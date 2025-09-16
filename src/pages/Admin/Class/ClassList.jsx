@@ -6,6 +6,7 @@ import AdminNav from "../../../components/AdminNav";
 import { FaPlus } from "react-icons/fa6";
 import axios from "axios";
 import { API_URL } from "../../../config";
+import { AiOutlineUsergroupDelete } from "react-icons/ai";
 
 export default function ClassList() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function ClassList() {
     "#D9D9D9",
   ];
 
+  // 클래스 목록 불러오기
   useEffect(() => {
     const fetchClasses = async () => {
       try {
@@ -47,6 +49,31 @@ export default function ClassList() {
     fetchClasses();
   }, []);
 
+  // 클래스 삭제 함수
+  const handleDelete = async (classId) => {
+    if (!window.confirm("이 클래스를 삭제하시겠습니까?")) return;
+
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const res = await axios.delete(`${API_URL}/class/delete/${classId}`, {
+        data: { lessonIds: [] },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert(res.data.message || "삭제 완료되었습니다.");
+
+      // UI에서 해당 클래스 제거
+      setClasses((prev) => prev.filter((cls) => cls.class_id !== classId));
+    } catch (error) {
+      console.error(error);
+      alert("클래스 삭제에 실패했습니다.");
+    }
+  };
+
+  // 검색 & 정렬
   const filteredClasses = classes
     .filter((cls) =>
       cls.class_name.toLowerCase().includes(search.toLowerCase())
@@ -113,15 +140,14 @@ export default function ClassList() {
 
           {/* 클래스 카드 */}
           <div className="flex justify-center mb-10 overflow-auto">
-            <div className="grid grid-cols-4 gap-10 mt-5">
+            <div className="grid grid-cols-1 gap-10 mt-5 sm:grid-cols-2 lg:grid-cols-4">
               {filteredClasses.map((cls) => {
-                // 백엔드에서 colorId가 1부터 시작한다고 가정
                 const bg = colors[(cls.colorId || 1) - 1];
 
                 return (
                   <div
                     key={cls.class_code}
-                    className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition"
+                    className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition relative"
                     style={{ backgroundColor: bg }}
                     onClick={() =>
                       navigate(`/admin/ClassMenu/${cls.class_id}`, {
@@ -129,7 +155,17 @@ export default function ClassList() {
                       })
                     }
                   >
-                    <h2 className="mb-2 text-xl font-bold">{cls.class_name}</h2>
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="text-xl font-bold">{cls.class_name}</h2>
+                      <AiOutlineUsergroupDelete
+                        size={20}
+                        className="cursor-pointer hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 카드 전체 클릭 이벤트 막기
+                          handleDelete(cls.class_id);
+                        }}
+                      />
+                    </div>
                     <p className="mb-1 text-sm text-gray-600">
                       # {cls.class_code}
                     </p>

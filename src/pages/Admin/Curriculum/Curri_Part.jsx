@@ -15,7 +15,7 @@ export default function Curri_Part() {
 
   const [customLessons, setCustomLessons] = useState([]);
 
-  // SonsuCard → lesson 추가 요청
+  // SonsuCard → lesson 추가
   const handleAddLesson = async (lessonId) => {
     // 중복 체크
     if (customLessons.includes(lessonId)) {
@@ -48,6 +48,7 @@ export default function Curri_Part() {
     }
   };
 
+  // CustomCard -> lesson 삭제
   const handleDeleteLesson = async (lessonId) => {
     if (!customLessons.includes(lessonId)) {
       alert("이미 삭제된 강의입니다.");
@@ -77,6 +78,28 @@ export default function Curri_Part() {
     }
   };
 
+  useEffect(() => {
+    const fetchCustomLessons = async () => {
+      try {
+        const token = getToken();
+        if (!token) return;
+
+        const res = await axios.get(`${API_URL}/class/${classId}/lessons`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        });
+
+        setCustomLessons(res.data || []);
+      } catch (err) {
+        console.error("클래스 강의 불러오기 실패:", err);
+      }
+    };
+
+    fetchCustomLessons();
+  }, [classId]);
+
   return (
     <div className="min-h-screen bg-[#5A9CD0]">
       <AdminTitle />
@@ -96,10 +119,8 @@ export default function Curri_Part() {
           </div>
 
           <div className="flex w-full justify-evenly mt-8">
-            {/* Sonsu → 추가 버튼 누르면 handleAddLesson 호출 */}
             <SonsuCard onAddLesson={handleAddLesson} />
 
-            {/* CustomCard → 부모에서 관리하는 customLessons 전달 */}
             <CustomCard
               customLessons={customLessons}
               onDeleteLesson={handleDeleteLesson}

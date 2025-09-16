@@ -6,8 +6,8 @@ import { API_URL } from "../../../config";
 const ProgressBar = ({ progress }) => {
   return (
     <div className="w-full mt-2">
-      <p className="text-sm font-medium mb-1">진도율 {progress}%</p>
-      <div className="w-full h-2 bg-gray-300 rounded overflow-hidden">
+      <p className="mb-1 text-sm font-medium">진도율 {progress}%</p>
+      <div className="w-full h-2 overflow-hidden bg-gray-300 rounded">
         <div
           className="h-full bg-green-500 rounded"
           style={{ width: `${progress}%` }}
@@ -89,7 +89,7 @@ const ContinueLearning = () => {
   if (loading) {
     return (
       <div className="my-12 w-[70%]">
-        <div className="flex justify-center items-center h-48">
+        <div className="flex items-center justify-center h-48">
           <div className="text-gray-500">데이터를 불러오는 중...</div>
         </div>
       </div>
@@ -99,12 +99,12 @@ const ContinueLearning = () => {
   if (error) {
     return (
       <div className="my-12 w-[70%]">
-        <div className="flex justify-center items-center h-48">
+        <div className="flex items-center justify-center h-48">
           <div className="text-red-500">
             {error}
             <button
               onClick={fetchProgress}
-              className="ml-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
+              className="px-3 py-1 ml-2 text-sm text-white bg-blue-500 rounded"
             >
               다시 시도
             </button>
@@ -115,9 +115,9 @@ const ContinueLearning = () => {
   }
 
   return (
-    <div className="my-12 w-[70%]">
+    <div className="w-full my-12">
       {/* 타이틀 */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <p className="text-[20px] font-semibold">이어서 학습하기</p>
       </div>
 
@@ -131,14 +131,14 @@ const ContinueLearning = () => {
               autoPlay
               loop
               muted
-              className="w-full h-full object-cover"
+              className="object-cover w-full h-full"
               onError={(e) => {
                 console.error("Video loading failed:", e);
               }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <span className="text-gray-500 text-xs text-center px-2">
+            <div className="flex items-center justify-center w-full h-full bg-gray-200">
+              <span className="px-2 text-xs text-center text-gray-500">
                 {nextLesson?.word || "이미지"}
               </span>
             </div>
@@ -146,7 +146,7 @@ const ContinueLearning = () => {
         </div>
 
         {/* 오른쪽 (정보) */}
-        <div className="flex flex-col flex-1 pl-8 justify-between py-4">
+        <div className="flex flex-col justify-between flex-1 py-4 pl-8">
           <div>
             <p className="text-[20px] font-bold">
               Part {nextLesson?.lessonCategory_id || 1}.{" "}
@@ -162,7 +162,7 @@ const ContinueLearning = () => {
           <div className="flex justify-center mt-3">
             <button
               onClick={handleNavigateToClassroom}
-              className="bg-[#F7EABF] py-2 rounded-full shadow-md w-[60%] text-sm font-medium hover:bg-[#f5e1a3] transition-colors"
+              className="bg-[#F7EABF] px-3 py-2 mt-1 rounded-full shadow-md text-sm font-medium hover:bg-[#f5e1a3] transition-colors"
             >
               배움터 바로가기
             </button>

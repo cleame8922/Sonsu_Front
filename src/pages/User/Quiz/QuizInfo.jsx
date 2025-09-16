@@ -35,18 +35,18 @@ export default function QuizInfo() {
 
             <div className="flex flex-col items-center justify-center -mt-20">
               <div className="flex text-[30px] fontSB">📌 Tips 📌</div>
-              <div className="flex text-[20px] mt-16 text-center">
+              <div className="flex text-[19px] mt-16 text-center">
                 배움터에서 5개 이상의 학습을 진행해주세요! 📚
               </div>
               <div className="flex space-x-3">
                 <div
-                  className="flex text-[#fff] fontSB text-[20px] px-12 py-3 mt-12 rounded-full bg-[#F28079]"
+                  className="flex text-[#fff] fontSB text-[19px] px-10 py-3 mt-12 rounded-full bg-[#F28079]"
                   onClick={() => navigate("/Classroom/easy")}
                 >
                   학습하러 가기
                 </div>{" "}
                 <div
-                  className="flex text-[#fff] fontSB text-[20px] px-12 py-3 mt-12 rounded-full bg-[#F28079]"
+                  className="flex text-[#fff] fontSB text-[19px] px-10 py-3 mt-12 rounded-full bg-[#F28079]"
                   onClick={() => navigate("/quiz")}
                 >
                   시작하기{" "}

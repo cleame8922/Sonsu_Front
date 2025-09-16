@@ -6,7 +6,7 @@ import { serverIP } from '../../../config';
 
 export default function Speed() {
   const [animationData, setAnimationData] = useState(null);
-  const [time, setTime] = useState(15);
+  const [time, setTime] = useState(5);
   const [error, setError] = useState(null);
   const [videoSrc, setVideoSrc] = useState(`${serverIP}/video_feed`);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
@@ -15,6 +15,7 @@ export default function Speed() {
   const [question, setQuestion] = useState(""); 
   const [modalVisible, setModalVisible] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(1);
+  const [gameOver, setGameOver] = useState(false);
 
   // Lottie 애니메이션 불러오기
   useEffect(() => {
@@ -63,7 +64,12 @@ export default function Speed() {
 
   // 타이머 기능
   useEffect(() => {
-    if (time <= 0) return;
+    if (time <= 0) {
+      // 시간이 끝나면 틀린 문제로 처리 후 다음 문제로 이동
+      setGameResult("틀렸습니다!");
+      setModalVisible(true);
+      return;
+    }
 
     const timer = setInterval(() => {
       setTime((prev) => prev - 1);
@@ -72,15 +78,19 @@ export default function Speed() {
     return () => clearInterval(timer);
   }, [time]);
 
-  if (!animationData) return null;
-
-  // 🔹 모달 닫고 다음 문제로 넘어가기
   const handleNextQuestion = () => {
+    if (questionIndex >= 5) {
+      setGameOver(true); // 🔹 다섯 번째 문제 끝나면 게임 종료
+      setModalVisible(false);
+      return;
+    }
+
     setModalVisible(false);
-    setTime(15);
-    setQuestionIndex(prev => prev + 1);
+    setTime(5);
+    setQuestionIndex((prev) => prev + 1);
     fetchQuestion();
-  }
+    setGameResult(null); // 결과 초기화
+  };
 
   return (
     <div className="min-h-screen bg-[#F28079]">
@@ -125,21 +135,21 @@ export default function Speed() {
             )}
           </div>
 
-          {/* 모달 */}
           {modalVisible && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
               <div className="p-8 text-center bg-white shadow-lg rounded-xl">
-                <h2 className="mb-4 text-2xl font-bold">정답입니다!</h2>
+                <h2 className="py-3 mb-4 text-2xl font-bold px-7">
+                  {gameResult === "정답입니다!" ? "정답입니다!" : "틀렸습니다!"}
+                </h2>
                 <button 
                   onClick={handleNextQuestion} 
-                  className="px-6 py-2 bg-[#39B360] text-white rounded-lg font-bold"
+                  className="px-6 py-1.5 bg-[#F28079] text-white rounded-lg font-bold"
                 >
                   다음 문제
                 </button>
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

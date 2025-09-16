@@ -16,35 +16,24 @@ export default function Home() {
     const fetchUserInfo = async () => {
       try {
         const token = getToken();
-
-        if (!token) {
-          console.log("토큰이 없습니다.");
-          return;
-        }
-
-        console.log("사용할 토큰:", token.substring(0, 20) + "...");
+        if (!token) return;
 
         const response = await axios.get(`${API_URL}/login/success`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Bearer 접두사 추가
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          withCredentials: true, // 쿠키도 함께 전송
+          withCredentials: true,
         });
 
         if (response.data) {
-          console.log("받아온 사용자 정보:", response.data);
           setUserInfo(response.data);
         }
       } catch (error) {
         console.error("사용자 정보 가져오기 실패:", error);
-        console.error("에러 상세:", error.response?.data);
-
-        // 토큰이 만료되었거나 유효하지 않은 경우
         if (error.response?.status === 401) {
           console.log("토큰이 만료되었거나 유효하지 않습니다.");
-          // 필요시 로그인 페이지로 리다이렉트
-          // navigate('/login');
+          // navigate("/login");
         }
       }
     };
@@ -59,26 +48,27 @@ export default function Home() {
       <div className="flex w-full">
         <UserNav />
 
-        <div className="flex flex-col mr-10 w-full rounded-3xl bg-[#fafafa] h-[850px]">
-          <div className="flex h-full flex items-center">
-            {/* 왼 */}
-            <div className="w-[50%] flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center w-full lg:mr-10 rounded-3xl bg-[#fafafa] min-h-[850px] p-6">
+          <div className="flex flex-col items-center h-full gap-10 lg:flex-row lg:items-center">
+            {/* 왼쪽 영역 */}
+            <div className="flex flex-col items-center justify-center w-full mr-12 lg:w-1/2">
               <img
                 src="/assets/images/sonsu.png"
                 alt=""
-                className="w-[220px]"
+                className="w-[150px] sm:w-[180px] lg:w-[220px]"
               />
-              <p className="text-[32px] fontMedium mt-12">
-                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"}
-                님!
+              <p className="text-[22px] sm:text-[26px] lg:text-[32px] fontMedium mt-8 text-center">
+                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"} 님!
               </p>
             </div>
-            <div className="w-[1px] h-[500px] bg-[#D9D9D9]"></div>
-            {/* 오 */}
-            <div className="w-[50%] h-[500px] flex flex-col ml-32 justify-between">
-              {/* 출석 */}
+
+            {/* 구분선 */}
+            <div className="hidden lg:block w-[1px] h-[400px] bg-[#D9D9D9]"></div>
+            <div className="lg:hidden w-full h-[1px] bg-[#D9D9D9]"></div>
+
+            {/* 오른쪽 영역 */}
+            <div className="flex flex-col justify-between w-full ml-12 lg:w-1/2">
               <DailyCheckIn />
-              {/* 이어서학습하기 */}
               <ContinueLearning />
             </div>
           </div>

@@ -44,7 +44,7 @@ export default function MyPage() {
       <div className="flex w-full">
         <UserNav />
         <div className="flex flex-col mr-10 w-full rounded-[40px] bg-[#f5f5f5] shadow-xl h-[850px] px-32 py-12 overflow-y-auto">
-          <div className="flex w-full justify-center items-center h-full">
+          <div className="flex items-center justify-center w-full h-full">
             {/* 왼쪽 */}
             <div className="w-[74%]">
               {/* 프로필 */}
@@ -53,7 +53,7 @@ export default function MyPage() {
                   <img
                     src="/assets/images/sonsu.png"
                     alt=""
-                    className="w-full h-full object-contain"
+                    className="object-contain w-full h-full"
                   />
                 </div>
                 <div className="ml-6">
@@ -102,7 +102,7 @@ export default function MyPage() {
       {/* 오버레이 */}
       {activePanel && (
         <div
-          className="absolute inset-0 bg-black/30 z-40"
+          className="absolute inset-0 z-40 bg-black/30"
           onClick={() => setActivePanel(null)}
         />
       )}

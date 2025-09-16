@@ -285,7 +285,7 @@ export default function AdminGroup() {
                       colorId: colors.indexOf(selectedColor) + 1,
                     };
 
-                    await axios.put(`${API_URL}/class/edit/${cls.id}`, body, {
+                    await axios.patch(`${API_URL}/class/edit/${cls.id}`, body, {
                       headers: { Authorization: `Bearer ${token}` },
                     });
 

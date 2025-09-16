@@ -13,6 +13,16 @@ export default function Main1() {
       .then(setAnimationData);
   }, []);
 
+  const handleStart = () => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/home");
+    } else {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="relative flex flex-col justify-center px-24 py-8">
       <MainHeader />
@@ -28,7 +38,7 @@ export default function Main1() {
         <div className="flex">
           <button
             className="bg-[#FFE694] shadow-xl px-24 py-2 rounded-full text-[23px]"
-            onClick={() => navigate("/home")}
+            onClick={handleStart}
           >
             시작하기
           </button>

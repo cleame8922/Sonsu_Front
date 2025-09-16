@@ -80,7 +80,7 @@ export default function SonsuCard({ onAddLesson }) {
             </div>
             <div
               className="flex items-center justify-end"
-              onClick={() => onAddLesson(lesson.lessonCategory_id)}
+              onClick={() => onAddLesson(lesson.lesson_id)}
             >
               <RxPlus size={24} />
             </div>

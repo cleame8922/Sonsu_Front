@@ -48,7 +48,7 @@ export default function Home() {
       <div className="flex w-full">
         <UserNav />
 
-        <div className="flex flex-col items-center w-full lg:mr-10 rounded-3xl bg-[#fafafa] min-h-[850px] p-6">
+        <div className="flex flex-col items-center w-full lg:mr-10 rounded-3xl bg-[#fafafa] min-h-[810px] p-6">
           <div className="flex flex-col items-center h-full gap-10 lg:flex-row lg:items-center">
             {/* 왼쪽 영역 */}
             <div className="flex flex-col items-center justify-center w-full mr-12 lg:w-1/2">
@@ -58,7 +58,8 @@ export default function Home() {
                 className="w-[150px] sm:w-[180px] lg:w-[220px]"
               />
               <p className="text-[22px] sm:text-[26px] lg:text-[32px] fontMedium mt-8 text-center">
-                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"} 님!
+                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"}{" "}
+                님!
               </p>
             </div>
 

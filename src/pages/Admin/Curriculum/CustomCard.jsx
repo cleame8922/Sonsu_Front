@@ -1,57 +1,14 @@
-import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-export default function CustomCard({ customLessons, onDeleteLesson }) {
+export default function CustomCard({ classId, name }) {
   const [activeTab, setActiveTab] = useState("초급");
-  const [detailedLessons, setDetailedLessons] = useState([]);
+  const [lessons, setLessons] = useState([]);
+  const [customLessons, setCustomLessons] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const { code: classId } = useParams();
-  const { state } = useLocation();
-  const name = state?.name;
-  const desc = state?.desc;
-
-  // customLessons(lessonId 배열)을 받아서 상세 정보를 가져오기
-  useEffect(() => {
-    const fetchLessonDetails = async () => {
-      if (!customLessons || customLessons.length === 0) {
-        setDetailedLessons([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const token = getToken();
-        if (!token) {
-          alert("로그인이 필요합니다.");
-          setLoading(false);
-          return;
-        }
-
-        // 각 lessonId에 대해 상세 정보를 가져오기
-        const res = await axios.get(`${API_URL}/class/${classId}/lessons`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        });
-
-        setDetailedLessons(res.data || []);
-      } catch (err) {
-        console.error("강의 상세 정보 불러오기 실패:", err);
-        setDetailedLessons([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLessonDetails();
-  }, [customLessons, classId]);
 
   const tabColors = {
     초급: "#39B360",
@@ -59,40 +16,117 @@ export default function CustomCard({ customLessons, onDeleteLesson }) {
     고급: "#FF9381",
   };
 
-  // 레벨별로 강의 필터링
-  const getFilteredLessons = () => {
-    if (!detailedLessons || detailedLessons.length === 0) return [];
+  // 탭에 따른 레벨 ID
+  const tabLevelId = { 초급: 1, 중급: 2, 고급: 3 };
 
-    // level 또는 difficulty 필드가 있다고 가정
-    // 실제 데이터 구조에 맞게 수정 필요
-    return detailedLessons.filter((lesson) => {
-      if (activeTab === "초급")
-        return lesson.level === "beginner" || lesson.difficulty === "초급";
-      if (activeTab === "중급")
-        return lesson.level === "intermediate" || lesson.difficulty === "중급";
-      if (activeTab === "고급")
-        return lesson.level === "advanced" || lesson.difficulty === "고급";
-      return true;
-    });
+  // 클래스에 추가된 강의 목록 가져오기
+  const fetchCustomLessons = async () => {
+    try {
+      const token = getToken();
+      if (!token) return;
+
+      const res = await axios.get(`${API_URL}/class/${classId}/lessons`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+
+      const lessonData = Array.isArray(res.data)
+        ? res.data
+        : res.data.lessons || res.data.data || [];
+
+      const lessonIds = lessonData.map(
+        (lesson) => lesson.lessonCategory_id || lesson.id
+      );
+
+      setCustomLessons(lessonIds);
+    } catch (err) {
+      console.error("클래스 강의 불러오기 실패:", err);
+      setCustomLessons([]);
+    }
   };
 
-  // 탭별 콘텐츠
+  // 현재 탭(레벨)에 해당하는 모든 강의 가져오기
+  const fetchAllLessons = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `${API_URL}/lessons/${tabLevelId[activeTab]}/categories`
+      );
+
+      const allLessons = res.data.categoriesWithWord || [];
+
+      // customLessons에 포함된 것만 필터링
+      const filteredLessons = allLessons.filter((lesson) =>
+        customLessons.includes(lesson.lessonCategory_id)
+      );
+
+      setLessons(filteredLessons);
+    } catch (err) {
+      console.error(`${activeTab} 강의 불러오기 실패:`, err);
+      setLessons([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 강의 삭제 함수
+  const handleDeleteLesson = async (lessonId) => {
+    if (!customLessons.includes(lessonId)) {
+      alert("이미 삭제된 강의입니다.");
+      return;
+    }
+
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+    try {
+      const token = getToken();
+
+      const res = await axios.delete(`${API_URL}/class/${classId}/delete`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+        data: { lessonIds: [lessonId] },
+      });
+
+      console.log("레슨 삭제 성공:", res.data.message);
+
+      // 성공 시 데이터 다시 불러오기
+      await fetchCustomLessons();
+      alert("강의가 삭제되었습니다.");
+    } catch (err) {
+      console.error("레슨 삭제 실패:", err.response?.data || err);
+      alert("레슨 삭제에 실패했습니다.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomLessons();
+  }, [classId]);
+
+  // 탭 변경 시 또는 customLessons 변경 시 필터링된 강의 목록 업데이트
+  useEffect(() => {
+    fetchAllLessons();
+  }, [activeTab, customLessons]);
+
+  // 탭별 콘텐츠 렌더링
   const renderContent = () => {
     if (loading) {
       return <p className="text-gray-500 mt-4">로딩 중...</p>;
     }
 
-    const filteredLessons = getFilteredLessons();
-
-    if (!filteredLessons || filteredLessons.length === 0) {
+    if (!lessons || lessons.length === 0) {
       return <p className="text-gray-500 mt-4">{activeTab} 강의가 없습니다.</p>;
     }
 
     return (
       <div className="h-[550px] overflow-y-auto space-y-4">
-        {filteredLessons.map((lesson) => (
+        {lessons.map((lesson) => (
           <div
-            key={lesson.lessonCategory_id || lesson.id}
+            key={lesson.lessonCategory_id}
             className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer bg-white"
           >
             {/* 이미지 */}
@@ -118,10 +152,10 @@ export default function CustomCard({ customLessons, onDeleteLesson }) {
             <div className="flex items-center justify-end">
               <FaRegTrashAlt
                 size={24}
-                className="cursor-pointer text-red-500 hover:text-red-700"
+                className="cursor-pointer text-red-500 hover:text-red-700 hover:scale-110 transition-transform"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteLesson(lesson.lesson_id);
+                  handleDeleteLesson(lesson.lessonCategory_id);
                 }}
               />
             </div>
@@ -160,6 +194,15 @@ export default function CustomCard({ customLessons, onDeleteLesson }) {
 
       {/* 탭 내용 */}
       <div className="mt-6">{renderContent()}</div>
+
+      {/* 디버깅용 정보 */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-2 p-2 bg-gray-100 text-xs">
+          <p>CustomLessons: {JSON.stringify(customLessons)}</p>
+          <p>Lessons count: {lessons.length}</p>
+          <p>Active tab: {activeTab}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,104 +1,13 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import AdminTitle from "../../../components/AdminTitle";
 import AdminNav from "../../../components/AdminNav";
 import SonsuCard from "./SonsuCard";
 import CustomCard from "./CustomCard";
-import axios from "axios";
-import { API_URL } from "../../../config";
-import { getToken } from "../../../utils/authStorage";
 
 export default function Curri_Part() {
   const { code: classId } = useParams();
   const { state } = useLocation();
   const name = state?.name;
-
-  const [customLessons, setCustomLessons] = useState([]);
-
-  // SonsuCard → lesson 추가
-  const handleAddLesson = async (lessonId) => {
-    // 중복 체크
-    if (customLessons.includes(lessonId)) {
-      alert("이미 추가된 강의입니다.");
-      return;
-    }
-
-    try {
-      const token = getToken();
-
-      const res = await axios.post(
-        `${API_URL}/class/${classId}/add`,
-        { lessonIds: [lessonId] },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-
-      console.log(res.data.message);
-
-      // 성공 시 상태 업데이트
-      setCustomLessons((prev) => [...prev, lessonId]);
-    } catch (err) {
-      console.error("레슨 추가 실패:", err);
-      alert("이미 추가된 강의입니다.");
-    }
-  };
-
-  // CustomCard -> lesson 삭제
-  const handleDeleteLesson = async (lessonId) => {
-    if (!customLessons.includes(lessonId)) {
-      alert("이미 삭제된 강의입니다.");
-      return;
-    }
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
-
-    try {
-      const token = getToken();
-
-      const res = await axios.delete(`${API_URL}/class/${classId}/delete`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-        data: { lessonIds: [lessonId] }, // DELETE 시 body는 data로
-      });
-
-      alert(res.data.message || "삭제 성공!");
-
-      // 삭제된 강의는 화면에서도 제거
-      setCustomLessons((prev) => prev.filter((id) => id !== lessonId));
-    } catch (err) {
-      console.error("레슨 삭제 실패:", err.response?.data || err);
-      alert("레슨 삭제에 실패했습니다.");
-    }
-  };
-
-  useEffect(() => {
-    const fetchCustomLessons = async () => {
-      try {
-        const token = getToken();
-        if (!token) return;
-
-        const res = await axios.get(`${API_URL}/class/${classId}/lessons`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        });
-
-        setCustomLessons(res.data || []);
-      } catch (err) {
-        console.error("클래스 강의 불러오기 실패:", err);
-      }
-    };
-
-    fetchCustomLessons();
-  }, [classId]);
 
   return (
     <div className="min-h-screen bg-[#5A9CD0]">
@@ -119,12 +28,8 @@ export default function Curri_Part() {
           </div>
 
           <div className="flex w-full justify-evenly mt-8">
-            <SonsuCard onAddLesson={handleAddLesson} />
-
-            <CustomCard
-              customLessons={customLessons}
-              onDeleteLesson={handleDeleteLesson}
-            />
+            <SonsuCard classId={classId} />
+            <CustomCard classId={classId} name={name} />
           </div>
         </div>
       </div>

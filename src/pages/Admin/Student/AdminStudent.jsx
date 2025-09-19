@@ -34,7 +34,7 @@ const getRandomPhoto = () =>
 // ================= 수강생 리스트 컴포넌트 =================
 function StudentList({ students, selected, toggleSelect }) {
   return (
-    <div className="flex justify-around  w-full px-10 my-2 mt-6">
+    <div className="flex justify-around w-full px-10 my-2 mt-6">
       {/* 왼쪽: 수강생 리스트 */}
       <div className="flex flex-col w-fit">
         {students.map((student) => {
@@ -42,7 +42,7 @@ function StudentList({ students, selected, toggleSelect }) {
           return (
             <div
               key={student.id}
-              className="flex items-center w-fit justify-start my-5 cursor-pointer"
+              className="flex items-center justify-start my-5 cursor-pointer w-fit"
               onClick={() => toggleSelect(student.id)}
             >
               <img
@@ -286,10 +286,13 @@ export default function AdminGroup() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
 
-  const toggleSelect = (id) =>
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
-    );
+  const toggleSelect = (id) => {
+    if (selected[0] === id) {
+      setSelected([]); // 클릭하면 선택 해제
+    } else {
+      setSelected([id]); // 새로 선택
+    }
+  };
 
   const handleAddStudents = async () => {
     if (selected.length === 0) {

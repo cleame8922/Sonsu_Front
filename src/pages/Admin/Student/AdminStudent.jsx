@@ -183,7 +183,7 @@ export default function AdminGroup() {
       const token = localStorage.getItem("accessToken");
       await axios.post(`${API_URL}/class/${cls.id}/invite`, { memberIds:selected }, { headers:{ Authorization:`Bearer ${token}`} });
       alert("성공적으로 멤버가 추가되었습니다.");
-      const res = await axios.get(`${API_URL}/class/${code}/select`);
+      const res = await axios.get(`${API_URL}/class/${code}/select`, { headers:{ Authorization:`Bearer ${token}`} });
       const data = res.data.data;
       setCls({ id:data.class_id, name:data.class_name, desc:data.description, code:data.class_code, color:colors[(data.color_id||1)-1], students:data.students||[] });
       setSelected([]);

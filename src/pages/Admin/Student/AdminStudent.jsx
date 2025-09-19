@@ -87,6 +87,48 @@ export default function AdminGroup() {
     fetchUsers();
   }, [searchModalOpen]);
 
+  useEffect(() => {
+  if (cls) console.log("클래스 ID:", cls.id);
+}, [cls]);
+
+
+ // 클래스 수강생 목록 불러오기
+  useEffect(() => {
+    if (!cls) return;
+
+    const fetchStudents = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const res = await axios.get(`${API_URL}/class/${cls.id}/users`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const users = res.data.users || [];
+
+        const imageList = [
+          "/assets/images/peoples/person1.png",
+          "/assets/images/peoples/person2.png",
+          "/assets/images/peoples/person3.png",
+          "/assets/images/peoples/person4.png",
+          "/assets/images/peoples/person5.png",
+        ];
+
+        setCls(prev => ({
+          ...prev,
+          students: users.map(u => ({
+            id: u.member_id,
+            name: u.username,
+            photo: imageList[Math.floor(Math.random() * imageList.length)]
+          }))
+        }));
+      } catch (error) {
+        console.error(error);
+        alert("수강생 목록 불러오기에 실패했습니다.");
+      }
+    };
+
+    fetchStudents();
+  }, [cls]);
+
   // 검색된 사용자
   const filteredUsers = users.filter(u =>
     u.username.toLowerCase().includes(search.toLowerCase())

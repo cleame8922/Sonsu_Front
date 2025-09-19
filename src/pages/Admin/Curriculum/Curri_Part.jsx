@@ -15,6 +15,24 @@ export default function Curri_Part() {
 
   const [customLessons, setCustomLessons] = useState([]);
 
+  useEffect(() => {
+    const fetchLessons = async () => {
+      try {
+        const token = getToken();
+        const { data } = await axios.get(`${API_URL}/class/${classId}/lessons`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        setCustomLessons(data); 
+        console.log(data);
+      } catch (err) {
+        console.error("강의 불러오기 실패", err);
+      }
+    };
+
+    fetchLessons();
+  }, [classId]);
+
   // SonsuCard에서 + 클릭 시 호출
   const handleAddLesson = (lesson) => {
     if (!customLessons.some((l) => l.lessonCategory_id === lesson.lessonCategory_id)) {
@@ -31,13 +49,11 @@ export default function Curri_Part() {
   const handleSave = async () => {
     try {
       const token = getToken();
+      const categoryIds = customLessons.map((l) => l.lessonCategory_id);
 
-      // lessonCategory_id만 추출
-      const lessonIds = customLessons.map((l) => l.lessonCategory_id);
-
-      const res = await axios.post(
-        `${API_URL}/class/${classId}/add`,
-        { lessonIds }, // body에 lessonIds 포함
+      await axios.post(
+        `${API_URL}/class/${classId}/addCate`,
+        { categoryIds },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,6 +62,14 @@ export default function Curri_Part() {
         }
       );
 
+      // 저장 후 최신 목록 다시 가져오기
+      const { data } = await axios.get(`${API_URL}/class/${classId}/lessons`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+      setCustomLessons(data);
+      alert("강의 저장 완료!");
+      
       if (res.data?.message) {
         alert(res.data.message);
       } else {

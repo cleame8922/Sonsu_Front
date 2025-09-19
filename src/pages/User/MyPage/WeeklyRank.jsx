@@ -28,57 +28,33 @@ const WeeklyRank = () => {
       try {
         const response = await axios.get(`${API_URL}/mypage/ranking`);
         console.log("API 응답:", response.data);
-
+  
         const data = response.data;
         if (!data || data.length === 0) return;
-
+  
         // 최대 점수 계산 (프로그레스바용)
         const maxPoints = Math.max(...data.map((user) => user.week_points));
-
-        // 상위 3명 + 현재 사용자 처리
-        const processedData = [];
-
-        // 상위 3명 추가
-        const top3 = data.slice(0, 3);
-        top3.forEach((user, index) => {
-          processedData.push({
-            rank: index + 1,
-            name: user.username,
-            progress: user.week_points,
-            progressRate:
-              maxPoints > 0 ? (user.week_points / maxPoints) * 100 : 0,
-            isCurrentUser: user.username === myUsername,
-          });
-        });
-
-        // 현재 사용자가 top3에 없으면 추가
-        if (myUsername && !top3.some((user) => user.username === myUsername)) {
-          const currentUserIndex = data.findIndex(
-            (user) => user.username === myUsername
-          );
-          if (currentUserIndex !== -1) {
-            const currentUser = data[currentUserIndex];
-            processedData.push({
-              rank: currentUserIndex + 1,
-              name: currentUser.username,
-              progress: currentUser.week_points,
-              progressRate:
-                maxPoints > 0 ? (currentUser.week_points / maxPoints) * 100 : 0,
-              isCurrentUser: true,
-            });
-          }
-        }
-
+  
+        // 전체 랭킹 처리
+        const processedData = data.map((user, index) => ({
+          rank: index + 1,
+          name: user.username,
+          progress: user.week_points,
+          progressRate: maxPoints > 0 ? (user.week_points / maxPoints) * 100 : 0,
+          isCurrentUser: user.username === myUsername,
+        }));
+  
         setUserRankData(processedData);
       } catch (error) {
         console.error("❌ 랭킹 API 에러:", error);
       }
     };
-
+  
     if (myUsername) {
       fetchRanking();
     }
   }, [myUsername]);
+  
 
   return (
     <div className="w-[80%]">

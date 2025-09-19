@@ -110,7 +110,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(
+        const response = await axios.post(
         `${API_URL}/register`,
         {
           username: signUpData.username,
@@ -119,7 +119,7 @@ const Login = () => {
           password: signUpData.password,
           confirmPassword: signUpData.confirmPassword,
         },
-        { withCredentials: true } // 쿠키 기반 인증 필요시
+        { withCredentials: true }
       );
 
       console.log("회원가입 성공:", response.data);

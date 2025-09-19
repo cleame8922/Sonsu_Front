@@ -29,6 +29,7 @@ export default function Home() {
         if (response.data) {
           setUserInfo(response.data);
         }
+        console.log("응답 헤더:", response.headers)
       } catch (error) {
         console.error("사용자 정보 가져오기 실패:", error);
         if (error.response?.status === 401) {

@@ -18,6 +18,20 @@ const colors = [
   "#D9D9D9",
 ];
 
+const peopleImages = [
+  "공준석.png",
+  "김정이.png",
+  "노태경.png",
+  "이호연.png",
+  "장원석.png",
+  "최유정.png",
+];
+
+const getRandomPhoto = () => {
+  const randomIndex = Math.floor(Math.random() * peopleImages.length);
+  return `/assets/images/peoples/${peopleImages[randomIndex]}`;
+};
+
 export default function AdminGroup() {
   const { code } = useParams();
   const [cls, setCls] = useState(null);
@@ -33,6 +47,7 @@ export default function AdminGroup() {
       try {
         const token = localStorage.getItem("accessToken");
 
+        // 1. 클래스 기본 정보 조회
         const res = await axios.get(`${API_URL}/class/${code}/select`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -45,8 +60,21 @@ export default function AdminGroup() {
           desc: data.description,
           code: data.class_code,
           color: colors[(data.color_id || 1) - 1],
-          students: data.students || [], // 백에서 학생 목록 받는 경우
+          students: [],
         };
+
+        // 2. 수강생 목록 조회
+        const userRes = await axios.get(`${API_URL}/class/${classData.id}/users`,{
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const users = userRes.data.users.map((u) => ({
+          id: u.member_id,
+          name: u.username,
+          photo: getRandomPhoto(), // 여기서 랜덤 지정 (한번만!)
+        }));
+
+        classData.students = users;
 
         setCls(classData);
         setGroupName(classData.name);
@@ -60,6 +88,39 @@ export default function AdminGroup() {
 
     fetchClass();
   }, [code]);
+
+  const handleDeleteStudents = async () => {
+    if (selected.length === 0) {
+      alert("삭제할 학생을 선택해주세요.");
+      return;
+    }
+
+    if (!window.confirm("선택된 학생을 삭제하시겠습니까?")) return;
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      await axios.delete(`${API_URL}/class/${cls.id}/delUsers`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: {
+          memberIds: cls.students.filter(s => selected.includes(s.name)).map(s => s.id)
+        }
+      });
+
+      alert("선택한 학생이 삭제되었습니다.");
+
+      // UI에서 삭제 반영
+      setCls(prev => ({
+        ...prev,
+        students: prev.students.filter(s => !selected.includes(s.name)),
+      }));
+
+      setSelected([]);
+    } catch (error) {
+      console.error(error);
+      alert("학생 삭제에 실패했습니다.");
+    }
+  };
 
   const toggleSelect = (name) => {
     setSelected(prev =>
@@ -180,7 +241,7 @@ export default function AdminGroup() {
               <div className='flex text-[18px] text-[#777] fontSB cursor-pointer' onClick={selectAll}>
                 전체선택
               </div>
-              <div className='flex text-[18px] text-[#5A9CD0] fontSB ml-10'>삭제</div>
+              <div className='flex text-[18px] text-[#5A9CD0] fontSB ml-10' onClick={handleDeleteStudents}>삭제</div>
             </div>
           )}
         </div>

@@ -213,7 +213,7 @@ export default function AdminGroup() {
               </div>
             </div>
           ) : (
-            <div className='flex flex-wrap my-2 justify-center mt-6 w-[80%] gap-2'>
+            <div className='flex flex-wrap my-2 justify-start mt-6 w-[80%] gap-2'>
               {cls.students.map((student) => (
                 <div
                   key={student.id}

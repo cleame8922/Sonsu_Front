@@ -142,37 +142,35 @@ export default function ClassList() {
           <div className="flex justify-center mb-10 overflow-auto">
             <div className="grid grid-cols-1 gap-10 mt-5 sm:grid-cols-2 lg:grid-cols-4">
               {filteredClasses.map((cls) => {
-                const bg = colors[(cls.colorId || 1) - 1];
+              const bg = cls.color_hex ?? "#DEE6F1";
 
-                return (
-                  <div
-                    key={cls.class_code}
-                    className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition relative"
-                    style={{ backgroundColor: bg }}
-                    onClick={() =>
-                      navigate(`/admin/ClassMenu/${cls.class_id}`, {
-                        state: { name: cls.class_name, desc: cls.description },
-                      })
-                    }
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-xl font-bold">{cls.class_name}</h2>
-                      <AiOutlineUsergroupDelete
-                        size={20}
-                        className="cursor-pointer hover:text-red-500"
-                        onClick={(e) => {
-                          e.stopPropagation(); // 카드 전체 클릭 이벤트 막기
-                          handleDelete(cls.class_id);
-                        }}
-                      />
-                    </div>
-                    <p className="mb-1 text-sm text-gray-600">
-                      # {cls.class_code}
-                    </p>
-                    <p className="text-gray-700">{cls.description}</p>
+              return (
+                <div
+                  key={cls.class_code}
+                  className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition relative"
+                  style={{ backgroundColor: bg }}
+                  onClick={() =>
+                    navigate(`/admin/ClassMenu/${cls.class_id}`, {
+                      state: { name: cls.class_name, desc: cls.description },
+                    })
+                  }
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-xl font-bold">{cls.class_name}</h2>
+                    <AiOutlineUsergroupDelete
+                      size={20}
+                      className="cursor-pointer hover:text-red-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(cls.class_id);
+                      }}
+                    />
                   </div>
-                );
-              })}
+                  <p className="mb-1 text-sm text-gray-600"># {cls.class_code}</p>
+                  <p className="text-gray-700">{cls.description}</p>
+                </div>
+              );
+            })}
             </div>
           </div>
         </div>

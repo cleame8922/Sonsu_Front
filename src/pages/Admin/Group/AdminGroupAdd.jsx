@@ -21,7 +21,7 @@ export default function AdminGroupAdd() {
   const [selectedColor, setSelectedColor] = useState("");
   const navigate = useNavigate();
 
-  // 색상 id 매핑 (백엔드에서 colorId 필요)
+  // 색상 id 매핑 (색상 → id)
   const getColorId = (color) => colors.indexOf(color) + 1;
 
   const handleSubmit = async () => {
@@ -36,18 +36,14 @@ export default function AdminGroupAdd() {
       const body = {
         className: groupName,
         description: description,
-        colorId: getColorId(selectedColor),
+        colorId: colors.indexOf(selectedColor) + 1,
       };
 
-      const res = await axios.post(
-        `${API_URL}/class/generate`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          },
-        }
-      );
+      const res = await axios.post(`${API_URL}/class/generate`, body, {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      });
 
       alert(res.data.message);
       navigate("/admin/classList");
@@ -56,7 +52,6 @@ export default function AdminGroupAdd() {
       alert("그룹 생성에 실패했습니다.");
     }
   };
-
 
   return (
     <div className="min-h-screen bg-[#5A9CD0]">

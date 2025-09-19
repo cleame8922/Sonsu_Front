@@ -3,7 +3,12 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "../../../config";
 
-export default function CustomCard({ classId, name, lessons = [], onDeleteLesson }) {
+export default function CustomCard({
+  classId,
+  name,
+  lessons = [],
+  onDeleteLesson,
+}) {
   const [existingLessons, setExistingLessons] = useState([]);
   const [activeTab, setActiveTab] = useState("초급");
   const [classColor, setClassColor] = useState("#DEE6F1"); // 기본 색상
@@ -23,14 +28,15 @@ export default function CustomCard({ classId, name, lessons = [], onDeleteLesson
         const res = await axios.get(`${API_URL}/class/${classId}/lessons`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(res.data);
 
-        // 기존 강의 포맷팅
-        const formattedLessons = res.data.map(category => ({
+        // 기존 강의 포맷팅 - lessonLevel을 lessonLevel_id로 매핑
+        const formattedLessons = res.data.map((category) => ({
           lessonCategory_id: category.id,
           part_number: category.partNumber,
           category: category.categoryName,
-          words: category.lessons.map(l => l.word),
-          level: category.level,
+          words: category.lessons.map((l) => l.word),
+          lessonLevel_id: category.lessonLevel, // API에서는 lessonLevel로 옴
         }));
 
         setExistingLessons(formattedLessons);
@@ -39,7 +45,6 @@ export default function CustomCard({ classId, name, lessons = [], onDeleteLesson
         if (res.data[0]?.class_color) {
           setClassColor(res.data[0].class_color);
         }
-
       } catch (err) {
         console.error(err);
       }
@@ -52,13 +57,16 @@ export default function CustomCard({ classId, name, lessons = [], onDeleteLesson
   const combinedLessons = [
     ...existingLessons,
     ...lessons.filter(
-      l => !existingLessons.some(exist => exist.lessonCategory_id === l.lessonCategory_id)
+      (l) =>
+        !existingLessons.some(
+          (exist) => exist.lessonCategory_id === l.lessonCategory_id
+        )
     ),
   ];
 
   // 선택된 레벨만 필터링
   const filteredLessons = combinedLessons.filter(
-    l => l.level === tabLevelId[activeTab]
+    (l) => l.lessonLevel_id === tabLevelId[activeTab]
   );
 
   return (
@@ -96,7 +104,7 @@ export default function CustomCard({ classId, name, lessons = [], onDeleteLesson
         {filteredLessons.map((lesson) => (
           <div
             key={lesson.lessonCategory_id}
-            className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer bg-white"
+            className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer "
           >
             <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
               <img

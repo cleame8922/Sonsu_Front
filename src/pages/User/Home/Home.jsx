@@ -58,7 +58,8 @@ export default function Home() {
                 className="w-[150px] sm:w-[180px] lg:w-[220px]"
               />
               <p className="text-[22px] sm:text-[26px] lg:text-[32px] fontMedium mt-8 text-center">
-                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"} 님!
+                안녕하세요, {userInfo?.username ? userInfo.username : "사용자"}{" "}
+                님!
               </p>
             </div>
 

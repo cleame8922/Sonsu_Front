@@ -15,16 +15,6 @@ export default function ClassList() {
   const [sortType, setSortType] = useState("latest");
   const [search, setSearch] = useState("");
 
-  const colors = [
-    "#DEE6F1",
-    "#F2F3ED",
-    "#F1E3D8",
-    "#F4EBCE",
-    "#DEE8D0",
-    "#F0E4F8",
-    "#D9D9D9",
-  ];
-
   // 클래스 목록 불러오기
   useEffect(() => {
     const fetchClasses = async () => {
@@ -37,6 +27,7 @@ export default function ClassList() {
           },
         });
         console.log("API_URL:", API_URL);
+        console.log(res.data);
 
         const data = res.data.data || [];
         setClasses(data);
@@ -142,35 +133,45 @@ export default function ClassList() {
           <div className="flex justify-center mb-10 overflow-auto">
             <div className="grid grid-cols-1 gap-10 mt-5 sm:grid-cols-2 lg:grid-cols-4">
               {filteredClasses.map((cls) => {
-              const bg = cls.color_hex ?? "#DEE6F1";
+                const bg = cls.color_hex ?? "#DEE6F1";
 
-              return (
-                <div
-                  key={cls.class_code}
-                  className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition relative"
-                  style={{ backgroundColor: bg }}
-                  onClick={() =>
-                    navigate(`/admin/ClassMenu/${cls.class_id}`, {
-                      state: { name: cls.class_name, desc: cls.description },
-                    })
-                  }
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-xl font-bold">{cls.class_name}</h2>
-                    <AiOutlineUsergroupDelete
-                      size={20}
-                      className="cursor-pointer hover:text-red-500"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(cls.class_id);
-                      }}
-                    />
+                return (
+                  <div
+                    key={cls.class_code}
+                    className="rounded-2xl p-6 shadow-md h-[300px] w-[220px] cursor-pointer hover:scale-105 transition relative"
+                    style={{ backgroundColor: bg }}
+                    onClick={() =>
+                      navigate(`/admin/ClassMenu/${cls.class_id}`, {
+                        state: {
+                          classInfo: {
+                            id: cls.class_id,
+                            name: cls.class_name,
+                            description: cls.description,
+                            code: cls.class_code,
+                            colorHex: cls.color_hex,
+                          },
+                        },
+                      })
+                    }
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="text-xl font-bold">{cls.class_name}</h2>
+                      <AiOutlineUsergroupDelete
+                        size={20}
+                        className="cursor-pointer hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(cls.class_id);
+                        }}
+                      />
+                    </div>
+                    <p className="mb-1 text-sm text-gray-600">
+                      # {cls.class_code}
+                    </p>
+                    <p className="text-gray-700">{cls.description}</p>
                   </div>
-                  <p className="mb-1 text-sm text-gray-600"># {cls.class_code}</p>
-                  <p className="text-gray-700">{cls.description}</p>
-                </div>
-              );
-            })}
+                );
+              })}
             </div>
           </div>
         </div>

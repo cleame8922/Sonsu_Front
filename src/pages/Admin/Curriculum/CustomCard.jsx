@@ -53,6 +53,19 @@ export default function CustomCard({
     if (classId) fetchLessons();
   }, [classId]);
 
+  const handleDelete = (lessonCategoryId, e) => {
+    // 이벤트 버블링 방지
+    e.stopPropagation();
+
+    // 부모 컴포넌트의 삭제 함수 호출
+    onDeleteLesson(lessonCategoryId);
+
+    // 로컬 상태에서도 해당 강의 제거 (기존 강의인 경우)
+    setExistingLessons((prev) =>
+      prev.filter((lesson) => lesson.lessonCategory_id !== lessonCategoryId)
+    );
+  };
+
   // 기존 + Sonsu에서 추가된 강의 합치기
   const combinedLessons = [
     ...existingLessons,
@@ -104,7 +117,7 @@ export default function CustomCard({
         {filteredLessons.map((lesson) => (
           <div
             key={lesson.lessonCategory_id}
-            className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer "
+            className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
           >
             <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
               <img
@@ -125,7 +138,7 @@ export default function CustomCard({
               <FaRegTrashAlt
                 size={24}
                 className="text-red-500 transition-transform cursor-pointer hover:text-red-700 hover:scale-110"
-                onClick={() => onDeleteLesson(lesson.lessonCategory_id)}
+                onClick={(e) => handleDelete(lesson.lessonCategory_id, e)}
               />
             </div>
           </div>

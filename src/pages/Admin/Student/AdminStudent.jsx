@@ -508,6 +508,10 @@ export default function AdminGroup() {
                 onClick={() => setSearchModalOpen(true)}
               />
             </div>
+
+            <p className="mt-2 text-sm text-gray-600">
+              {cls.desc}
+            </p>
           </div>
 
           {/* 수강생 */}
@@ -518,7 +522,7 @@ export default function AdminGroup() {
               toggleSelect={toggleSelect}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center w-full mt-32">
+            <div className="flex flex-col items-center justify-center w-full h-[830px] mt-32">
               <img
                 src="/assets/images/Admin/Student/student.png"
                 alt="group"

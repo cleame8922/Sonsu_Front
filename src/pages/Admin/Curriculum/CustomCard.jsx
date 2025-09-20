@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "../../../config";
-import { div } from "@tensorflow/tfjs";
 
 export default function CustomCard({
   classId,
@@ -13,7 +12,6 @@ export default function CustomCard({
   const [existingLessons, setExistingLessons] = useState([]);
   const [activeTab, setActiveTab] = useState("초급");
   const [classColor, setClassColor] = useState("#DEE6F1"); // 기본 색상
-  const [openLessonId, setOpenLessonId] = useState(null);
 
   const tabColors = {
     초급: "#39B360",
@@ -32,16 +30,18 @@ export default function CustomCard({
         });
         console.log(res.data);
 
+        // 기존 강의 포맷팅 - lessonLevel을 lessonLevel_id로 매핑
         const formattedLessons = res.data.map((category) => ({
           lessonCategory_id: category.id,
           part_number: category.partNumber,
           category: category.categoryName,
           words: category.lessons.map((l) => l.word),
-          lessonLevel_id: category.lessonLevel,
+          lessonLevel_id: category.lessonLevel, // API에서는 lessonLevel로 옴
         }));
 
         setExistingLessons(formattedLessons);
 
+        // class_color가 있다면 적용
         if (res.data[0]?.class_color) {
           setClassColor(res.data[0].class_color);
         }
@@ -51,21 +51,22 @@ export default function CustomCard({
     };
 
     if (classId) fetchLessons();
-    setOpenLessonId(null);
   }, [classId]);
 
   const handleDelete = (lessonCategoryId, e) => {
+    // 이벤트 버블링 방지
     e.stopPropagation();
+
+    // 부모 컴포넌트의 삭제 함수 호출
     onDeleteLesson(lessonCategoryId);
+
+    // 로컬 상태에서도 해당 강의 제거 (기존 강의인 경우)
     setExistingLessons((prev) =>
       prev.filter((lesson) => lesson.lessonCategory_id !== lessonCategoryId)
     );
   };
 
-  const toggleLesson = (id) => {
-    setOpenLessonId(openLessonId === id ? null : id);
-  };
-
+  // 기존 + Sonsu에서 추가된 강의 합치기
   const combinedLessons = [
     ...existingLessons,
     ...lessons.filter(
@@ -76,6 +77,7 @@ export default function CustomCard({
     ),
   ];
 
+  // 선택된 레벨만 필터링
   const filteredLessons = combinedLessons.filter(
     (l) => l.lessonLevel_id === tabLevelId[activeTab]
   );
@@ -115,53 +117,30 @@ export default function CustomCard({
         {filteredLessons.map((lesson) => (
           <div
             key={lesson.lessonCategory_id}
-            className="p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer bg-white"
+            className="flex p-4 rounded-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
           >
-            {/* 상단 정보 */}
-
-            <div
-              className="flex items-center"
-              onClick={() => toggleLesson(lesson.lessonCategory_id)}
-            >
-              <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
-                <img
-                  src="/assets/images/Sign.png"
-                  alt=""
-                  className="object-cover w-20 h-20"
-                />
-              </div>
-              <div className="flex flex-col justify-center ml-4 w-[70%]">
-                <p className="text-lg font-bold">
-                  Part {lesson.part_number}. {lesson.category}
-                </p>
-                <p className="text-sm text-gray-600 truncate w-[150px]">
-                  {lesson.words?.join(", ") || "단어 정보 없음"}
-                </p>
-              </div>
-              <div className="flex items-center justify-end">
-                <FaRegTrashAlt
-                  size={24}
-                  className="text-red-500 transition-transform cursor-pointer hover:text-red-700 hover:scale-110"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(lesson.lessonCategory_id, e);
-                  }}
-                />
-              </div>
+            <div className="relative p-4 rounded-[15px] shadow-lg bg-[#F2F2F2]">
+              <img
+                src="/assets/images/Sign.png"
+                alt=""
+                className="object-cover w-20 h-20"
+              />
             </div>
-            {openLessonId === lesson.lessonCategory_id && (
-              <div className="mt-3 ml-4 pl-4 border-l-2 border-gray-300 space-y-2">
-                {lesson.words?.map((w, idx) => (
-                  <div key={idx} className="flex space-x-2 items-center">
-                    <p className="text-sm text-gray-700">- {w}</p>
-                    <FaRegTrashAlt
-                      size={12}
-                      className="text-red-500 transition-transform cursor-pointer hover:text-red-700 hover:scale-110"
-                    />
-                  </div>
-                )) || <p className="text-sm text-gray-500">세부 강의 없음</p>}
-              </div>
-            )}
+            <div className="flex flex-col justify-center ml-4 w-[70%]">
+              <p className="text-lg font-bold">
+                Part {lesson.part_number}. {lesson.category}
+              </p>
+              <p className="text-sm text-gray-600 truncate w-[150px]">
+                {lesson.words?.join(", ") || "단어 정보 없음"}
+              </p>
+            </div>
+            <div className="flex items-center justify-end">
+              <FaRegTrashAlt
+                size={24}
+                className="text-red-500 transition-transform cursor-pointer hover:text-red-700 hover:scale-110"
+                onClick={(e) => handleDelete(lesson.lessonCategory_id, e)}
+              />
+            </div>
           </div>
         ))}
       </div>

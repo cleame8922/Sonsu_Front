@@ -14,7 +14,7 @@ export default function AdminNav() {
   const [userInfo, setUserInfo] = useState({});
 
   const menus = [
-    { name: "커리큘럼 관리", path: "/admin/ClassList" },
+    { name: "커리큘럼 관리", path: `/admin/Curri_Part/${code}` },
     { name: "수강그룹 관리", path: `/admin/group/${code}` },
     { name: "수강생 관리", path: `/admin/student/${code}` },
   ];
@@ -51,8 +51,12 @@ export default function AdminNav() {
   }, [location.pathname, code]); // code가 바뀌면 다시 체크
 
   const handleClick = (menu) => {
-    setSelected(menu.name);
-    navigate(menu.path);
+  if (!code) {
+    alert("과목 코드가 없습니다. 먼저 과목을 선택해주세요.");
+    return; // 클릭 막기
+  }
+  setSelected(menu.name);
+  navigate(menu.path);
   };
 
   const handleUserMenuClick = async (item) => {

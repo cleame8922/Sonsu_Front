@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import AdminTitle from "../../../components/AdminTitle";
 import AdminNav from "../../../components/AdminNav";
 import SonsuCard from "./SonsuCard";
 import CustomCard from "./CustomCard";
-import axios from "axios";
+import { default as axios } from "axios";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../utils/authStorage";
 
 export default function Curri_Part() {
   const { code: classId } = useParams();
   const { state } = useLocation();
-  const name = state?.name || "커스텀 강의";
+  const name = state?.name;
 
   const [customLessons, setCustomLessons] = useState([]);
 
@@ -45,7 +45,7 @@ export default function Curri_Part() {
     setCustomLessons(customLessons.filter((l) => l.lessonCategory_id !== lessonId));
   };
 
-  // 수정완료 버튼 클릭 시 /class/:classId/add 호출
+  // 수정완료 버튼 클릭 시 백엔드 저장
   const handleSave = async () => {
     try {
       const token = getToken();
@@ -59,6 +59,7 @@ export default function Curri_Part() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          withCredentials: true,
         }
       );
 
@@ -68,13 +69,8 @@ export default function Curri_Part() {
         withCredentials: true,
       });
       setCustomLessons(data);
+
       alert("강의 저장 완료!");
-      
-      if (res.data?.message) {
-        alert(res.data.message);
-      } else {
-        alert("저장 완료");
-      }
     } catch (err) {
       console.error(err);
       alert("저장 실패");
@@ -105,12 +101,13 @@ export default function Curri_Part() {
           <div className="flex w-full mt-8 justify-evenly">
             <SonsuCard
               classId={classId}
+              activeTab="초급"
               onAddLesson={handleAddLesson}
               customLessons={customLessons}
             />
             <CustomCard
               classId={classId}
-              lessons={customLessons} // SonsuCard에서 추가된 강의를 포함
+              lessons={customLessons}
               onDeleteLesson={handleDeleteLesson}
               name={name}
             />

@@ -91,13 +91,28 @@ function StudentList({ students, selected, toggleSelect }) {
 function SearchModal({
   users,
   filteredUsers,
-  selected,
-  toggleSelect,
   handleAddStudents,
   setSearchModalOpen,
   search,
   setSearch,
+  clsStudentsIds,
 }) {
+  const [modalSelected, setModalSelected] = useState([]);
+
+  const toggleSelect = (id) => {
+    setModalSelected(prevSelected => {
+      const newSelected = prevSelected.includes(id) 
+        ? prevSelected.filter((s) => s !== id)
+        : [...prevSelected, id];
+      return newSelected;
+    });
+  };
+
+  const handleAddClick = () => {
+    handleAddStudents(modalSelected);
+    setModalSelected([]);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-2xl p-8 w-[500px] flex flex-col">
@@ -117,42 +132,81 @@ function SearchModal({
         </div>
 
         <div className="flex flex-col max-h-[400px] overflow-y-auto">
-          {filteredUsers.map((user) => (
-            <div
-              key={user.user_id}
-              className="flex items-center justify-between px-6 py-3 my-1 border rounded-lg cursor-pointer hover:bg-gray-100"
-              onClick={() => toggleSelect(user.user_id)}
-            >
-              <span className="text-[18px]">{user.username}</span>
-              <IoCheckbox
-                size={22}
-                className={
-                  selected.includes(user.user_id)
-                    ? "text-[#5A9CD0]"
-                    : "text-[#aaa]"
-                }
-              />
-            </div>
-          ))}
-          {filteredUsers.length === 0 && (
-            <div className="py-10 text-center text-gray-500">
-              검색 결과가 없습니다.
-            </div>
+          {filteredUsers.length === 0 ? (
+            <div className="py-4 text-center text-gray-500">검색 결과가 없습니다.</div>
+          ) : (
+            filteredUsers.map((user, index) => {
+              const uniqueKey = `search-modal-user-${user.user_id || 'no-id'}-${index}`;
+              const userId = user.user_id;
+              
+              const alreadyAdded = clsStudentsIds.includes(userId);
+              const isSelected = modalSelected.includes(userId);
+              
+              return (
+                <div
+                  key={uniqueKey}
+                  className={`flex items-center justify-between px-6 py-3 my-1 border rounded-lg ${
+                    alreadyAdded 
+                      ? "opacity-50 bg-gray-100" 
+                      : isSelected
+                      ? "bg-blue-50 border-blue-300"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  <span className="text-[18px]">
+                    {user.username || "이름 없음"}
+                    {alreadyAdded && <span className="ml-2 text-sm text-gray-500">(이미 추가됨)</span>}
+                  </span>
+                  <IoCheckbox
+                    size={22}
+                    className={`cursor-pointer ${
+                      alreadyAdded 
+                        ? "text-gray-400" 
+                        : isSelected 
+                        ? "text-[#5A9CD0]" 
+                        : "text-[#aaa]"
+                    }`}
+                    onClick={() => {
+                      if (!alreadyAdded && userId) {
+                        toggleSelect(userId);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })
           )}
         </div>
 
+        {/* 선택된 학생 수 표시 */}
+        {modalSelected.length > 0 && (
+          <div className="p-2 mt-4 text-center rounded-lg bg-blue-50">
+            <span className="text-sm text-blue-700">
+              {modalSelected.length}명의 학생이 선택되었습니다.
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-end gap-4 mt-6">
           <button
-            className="px-4 py-2 border border-gray-400 rounded-lg"
-            onClick={() => setSearchModalOpen(false)}
+            className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-50"
+            onClick={() => {
+              setSearchModalOpen(false);
+              setModalSelected([]);
+            }}
           >
             닫기
           </button>
           <button
-            className="px-4 py-2 rounded-lg bg-[#5A9CD0] text-white"
-            onClick={handleAddStudents}
+            className={`px-4 py-2 rounded-lg text-white ${
+              modalSelected.length > 0 
+                ? "bg-[#5A9CD0] hover:bg-[#4A8BC0]" 
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            onClick={handleAddClick}
+            disabled={modalSelected.length === 0}
           >
-            추가하기
+            추가하기 ({modalSelected.length})
           </button>
         </div>
       </div>
@@ -294,31 +348,33 @@ export default function AdminGroup() {
     }
   };
 
-  const handleAddStudents = async () => {
-    if (selected.length === 0) {
-      alert("추가할 학생을 선택해주세요.");
-      return;
-    }
+  const handleAddStudents = async (selectedIds) => {
+    if (!cls || selectedIds.length === 0) return alert("추가할 학생을 선택해주세요.");
+
     try {
       const token = localStorage.getItem("accessToken");
       await axios.post(
         `${API_URL}/class/${cls.id}/invite`,
-        { memberIds: selected },
+        { memberIds: selectedIds },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("성공적으로 멤버가 추가되었습니다.");
-      const res = await axios.get(`${API_URL}/class/${code}/select`, { headers:{ Authorization:`Bearer ${token}`} });
-      const data = res.data.data;
-      setCls({
-        id: data.class_id,
-        name: data.class_name,
-        desc: data.description,
-        code: data.class_code,
-        color: colors[(data.color_id || 1) - 1],
-        students: data.students || [],
-      });
-      setSelected([]);
+
+      // 새로 추가된 학생들을 현재 학생 목록에 추가
+      const newStudents = users
+        .filter(u => selectedIds.includes(u.user_id))
+        .map(u => ({ 
+          id: u.user_id, 
+          name: u.username, 
+          photo: getRandomPhoto() 
+        }));
+
+      setCls(prev => ({ 
+        ...prev, 
+        students: [...prev.students, ...newStudents] 
+      }));
+
       setSearchModalOpen(false);
+      alert("성공적으로 멤버가 추가되었습니다.");
     } catch (err) {
       console.error(err);
       alert("멤버 추가에 실패했습니다.");
@@ -475,31 +531,26 @@ export default function AdminGroup() {
 
       {searchModalOpen && (
         <SearchModal
-          {...{
-            users,
-            filteredUsers,
-            selected,
-            toggleSelect,
-            handleAddStudents,
-            setSearchModalOpen,
-            search,
-            setSearch,
-          }}
+          users={users}
+          filteredUsers={filteredUsers}
+          handleAddStudents={handleAddStudents}
+          setSearchModalOpen={setSearchModalOpen}
+          search={search}
+          setSearch={setSearch}
+          clsStudentsIds={cls.students.map(s => s.id)}
         />
       )}
       {editModalOpen && (
         <EditModal
-          {...{
-            cls,
-            groupName,
-            groupDesc,
-            selectedColor,
-            setGroupName,
-            setGroupDesc,
-            setSelectedColor,
-            setCls,
-            setEditModalOpen,
-          }}
+          cls={cls}
+          groupName={groupName}
+          groupDesc={groupDesc}
+          selectedColor={selectedColor}
+          setGroupName={setGroupName}
+          setGroupDesc={setGroupDesc}
+          setSelectedColor={setSelectedColor}
+          setCls={setCls}
+          setEditModalOpen={setEditModalOpen}
         />
       )}
     </div>

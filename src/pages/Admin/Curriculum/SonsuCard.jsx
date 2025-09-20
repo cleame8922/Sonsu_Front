@@ -113,9 +113,14 @@ export default function SonsuCard({ classId, onAddLesson, customLessons }) {
                   <p className="text-lg font-bold">
                     Part {lesson.part_number}. {lesson.category}
                   </p>
-                  <p className="text-sm text-gray-600 truncate w-[150px]">
-                    {lesson.words?.join(", ") || "단어 정보 없음"}
-                  </p>
+                  <div className="flex items-center space-x-3">
+                    <p className="text-sm text-gray-600 truncate ">
+                      {lesson.words?.join(", ") || "단어 정보 없음"}
+                    </p>
+                    <p className="text-xs text-gray-400 ">
+                      {openLessonId === lesson.lessonCategory_id ? "▲" : "▼"}
+                    </p>
+                  </div>
                 </div>
                 <div
                   className="flex items-center justify-end"
@@ -139,12 +144,27 @@ export default function SonsuCard({ classId, onAddLesson, customLessons }) {
 
               {/* 펼쳐지는 하위 Lessons */}
               {openLessonId === lesson.lessonCategory_id && (
-                <div className="mt-3 ml-4 pl-4 border-l-2 border-gray-300 space-y-2">
-                  {lesson.words?.map((w, idx) => (
-                    <p key={idx} className="text-sm text-gray-700">
-                      - {w}
-                    </p>
-                  )) || <p className="text-sm text-gray-500">세부 강의 없음</p>}
+                <div className="mt-4 ml-4 pl-4 border-l-2 border-gray-300">
+                  <div className="space-y-1">
+                    {lesson.words && lesson.words.length > 0 ? (
+                      lesson.words.map((word, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1 pr-2"
+                        >
+                          <p className="text-sm text-gray-700">• {word}</p>
+                          <RxPlus
+                            size={12}
+                            className="text-red-400 transition-transform cursor-pointer hover:text-red-600 hover:scale-110 ml-2"
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">
+                        세부 강의 없음
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

@@ -18,58 +18,68 @@ export default function Curri_Part() {
   const [customLessons, setCustomLessons] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // 서버에서 데이터를 가져오는 함수를 별도로 분리
+  const fetchLessons = async () => {
+    try {
+      const token = getToken();
+      const { data } = await axios.get(`${API_URL}/class/${classId}/lessons`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+
+      // API 응답을 올바른 형태로 변환
+      const formattedLessons = data.map((category) => ({
+        lessonCategory_id: category.id,
+        part_number: category.partNumber,
+        category: category.categoryName,
+        words: category.lessons?.map((l) => l.word) || [],
+        lessonLevel_id: category.lessonLevel,
+      }));
+
+      return formattedLessons;
+    } catch (err) {
+      console.error("강의 불러오기 실패", err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
-    const fetchLessons = async () => {
+    const loadLessons = async () => {
+      if (!classId) return;
+
       setLoading(true);
       try {
-        const token = getToken();
-        const { data } = await axios.get(
-          `${API_URL}/class/${classId}/lessons`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true,
-          }
-        );
-
-        // API 응답을 올바른 형태로 변환
-        const formattedLessons = data.map((category) => ({
-          lessonCategory_id: category.id,
-          part_number: category.partNumber,
-          category: category.categoryName,
-          words: category.lessons?.map((l) => l.word) || [],
-          lessonLevel_id: category.lessonLevel,
-        }));
-
-        setCustomLessons(formattedLessons);
-        console.log("Fetched lessons:", formattedLessons);
+        const lessons = await fetchLessons();
+        setCustomLessons(lessons);
+        console.log("Fetched lessons:", lessons);
       } catch (err) {
-        console.error("강의 불러오기 실패", err);
         alert("강의 목록을 불러오는데 실패했습니다.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (classId) {
-      fetchLessons();
-    }
+    loadLessons();
   }, [classId]);
 
   // SonsuCard에서 + 클릭 시 호출
   const handleAddLesson = (lesson) => {
-    if (
-      !customLessons.some(
-        (l) => l.lessonCategory_id === lesson.lessonCategory_id
-      )
-    ) {
-      setCustomLessons([...customLessons, lesson]);
+    // 이미 있는지 한 번 더 확인 (안전장치)
+    const alreadyExists = customLessons.some(
+      (l) => l.lessonCategory_id === lesson.lessonCategory_id
+    );
+
+    if (!alreadyExists) {
+      setCustomLessons((prevLessons) => [...prevLessons, lesson]);
+    } else {
+      console.warn("이미 추가된 레슨:", lesson);
     }
   };
 
   // CustomCard에서 삭제 시 호출
   const handleDeleteLesson = (lessonId) => {
-    setCustomLessons(
-      customLessons.filter((l) => l.lessonCategory_id !== lessonId)
+    setCustomLessons((prevLessons) =>
+      prevLessons.filter((l) => l.lessonCategory_id !== lessonId)
     );
   };
 
@@ -87,18 +97,12 @@ export default function Curri_Part() {
         .filter((id) => id !== null && id !== undefined);
 
       console.log("Saving categoryIds:", categoryIds);
-      console.log("Original customLessons:", customLessons);
 
-      // 먼저 기존 데이터를 가져와서 현재 클래스에 있는 모든 카테고리ID를 얻기
-      const { data: currentData } = await axios.get(
-        `${API_URL}/class/${classId}/lessons`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+      // 현재 서버의 데이터를 가져와서 비교
+      const currentLessons = await fetchLessons();
+      const currentCategoryIds = currentLessons.map(
+        (lesson) => lesson.lessonCategory_id
       );
-
-      const currentCategoryIds = currentData.map((category) => category.id);
 
       // 삭제할 카테고리들 (현재 DB에는 있지만 새로운 목록에는 없는 것들)
       const categoriesToDelete = currentCategoryIds.filter(
@@ -112,6 +116,12 @@ export default function Curri_Part() {
 
       console.log("Categories to delete:", categoriesToDelete);
       console.log("Categories to add:", categoriesToAdd);
+
+      // 변경사항이 없으면 저장하지 않음
+      if (categoriesToDelete.length === 0 && categoriesToAdd.length === 0) {
+        alert("변경사항이 없습니다.");
+        return;
+      }
 
       // 삭제할 카테고리가 있다면 삭제 API 호출
       if (categoriesToDelete.length > 0) {
@@ -140,22 +150,10 @@ export default function Curri_Part() {
         );
       }
 
-      // 저장 후 최신 목록 다시 가져오기
-      const { data } = await axios.get(`${API_URL}/class/${classId}/lessons`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      // 저장 후 최신 목록 다시 가져오기 (서버 상태와 동기화)
+      const updatedLessons = await fetchLessons();
+      setCustomLessons(updatedLessons);
 
-      // 가져온 데이터 포맷팅
-      const formattedLessons = data.map((category) => ({
-        lessonCategory_id: category.id,
-        part_number: category.partNumber,
-        category: category.categoryName,
-        words: category.lessons?.map((l) => l.word) || [],
-        lessonLevel_id: category.lessonLevel,
-      }));
-
-      setCustomLessons(formattedLessons);
       alert("강의 저장 완료!");
     } catch (err) {
       console.error("저장 실패:", err);

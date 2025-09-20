@@ -77,11 +77,10 @@ export default function ClassList() {
   return (
     <div className="min-h-screen bg-[#5A9CD0]">
       <AdminTitle />
-
       <div className="flex w-full">
         <AdminNav />
 
-        <div className="flex flex-col mr-10 w-full rounded-3xl bg-[#fafafa] h-[850px]">
+        <div className="flex flex-col items-center mr-10 w-full rounded-3xl bg-[#fafafa] min-h-[850px]">
           {/* 상단 탭 + 검색 */}
           <div className="flex flex-col items-end mt-8 mb-6 mr-10">
             <div className="flex items-center justify-end w-full mb-6">

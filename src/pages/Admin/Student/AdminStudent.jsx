@@ -307,7 +307,9 @@ export default function AdminGroup() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("성공적으로 멤버가 추가되었습니다.");
-      const res = await axios.get(`${API_URL}/class/${code}/select`, { headers:{ Authorization:`Bearer ${token}`} });
+      const res = await axios.get(`${API_URL}/class/${code}/select`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = res.data.data;
       setCls({
         id: data.class_id,
@@ -410,7 +412,7 @@ export default function AdminGroup() {
       <AdminTitle />
       <div className="flex w-full">
         <AdminNav />
-        <div className="flex flex-col items-center mr-10 w-full my-10 rounded-3xl bg-[#fafafa] min-h-[830px]">
+        <div className="flex flex-col items-center mr-10 w-full  rounded-3xl bg-[#fafafa] min-h-[850px]">
           {/* 그룹 정보 */}
           <div className="flex flex-col w-[90%] pt-10 pb-6 h-fit border-b-[4px] border-[#5A9CD0]">
             <div className="flex items-end">

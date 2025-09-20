@@ -19,7 +19,12 @@ export default function AdminNav() {
     { name: "수강생 관리", path: `/admin/student/${code}` },
   ];
 
-  const userMenuItems = ["프로필 설정", "수업 참여하기", "손수잇다", "로그아웃"];
+  const userMenuItems = [
+    "프로필 설정",
+    "수업 참여하기",
+    "손수잇다",
+    "로그아웃",
+  ];
 
   const [selected, setSelected] = useState("");
 
@@ -30,7 +35,10 @@ export default function AdminNav() {
         if (!token) return;
 
         const response = await axios.get(`${API_URL}/login/success`, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
           withCredentials: true,
         });
 
@@ -65,7 +73,10 @@ export default function AdminNav() {
           `${API_URL}/logout`,
           {},
           token
-            ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+            ? {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+              }
             : { withCredentials: true }
         );
       } catch (error) {
@@ -81,7 +92,6 @@ export default function AdminNav() {
       console.log(item + " 클릭됨");
     }
   };
-
 
   return (
     <div className="flex flex-col w-[16%] mx-14 ">

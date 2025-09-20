@@ -100,8 +100,8 @@ function SearchModal({
   const [modalSelected, setModalSelected] = useState([]);
 
   const toggleSelect = (id) => {
-    setModalSelected(prevSelected => {
-      const newSelected = prevSelected.includes(id) 
+    setModalSelected((prevSelected) => {
+      const newSelected = prevSelected.includes(id)
         ? prevSelected.filter((s) => s !== id)
         : [...prevSelected, id];
       return newSelected;
@@ -133,21 +133,25 @@ function SearchModal({
 
         <div className="flex flex-col max-h-[400px] overflow-y-auto">
           {filteredUsers.length === 0 ? (
-            <div className="py-4 text-center text-gray-500">검색 결과가 없습니다.</div>
+            <div className="py-4 text-center text-gray-500">
+              검색 결과가 없습니다.
+            </div>
           ) : (
             filteredUsers.map((user, index) => {
-              const uniqueKey = `search-modal-user-${user.user_id || 'no-id'}-${index}`;
+              const uniqueKey = `search-modal-user-${
+                user.user_id || "no-id"
+              }-${index}`;
               const userId = user.user_id;
-              
+
               const alreadyAdded = clsStudentsIds.includes(userId);
               const isSelected = modalSelected.includes(userId);
-              
+
               return (
                 <div
                   key={uniqueKey}
                   className={`flex items-center justify-between px-6 py-3 my-1 border rounded-lg ${
-                    alreadyAdded 
-                      ? "opacity-50 bg-gray-100" 
+                    alreadyAdded
+                      ? "opacity-50 bg-gray-100"
                       : isSelected
                       ? "bg-blue-50 border-blue-300"
                       : "hover:bg-gray-100"
@@ -155,15 +159,19 @@ function SearchModal({
                 >
                   <span className="text-[18px]">
                     {user.username || "이름 없음"}
-                    {alreadyAdded && <span className="ml-2 text-sm text-gray-500">(이미 추가됨)</span>}
+                    {alreadyAdded && (
+                      <span className="ml-2 text-sm text-gray-500">
+                        (이미 추가됨)
+                      </span>
+                    )}
                   </span>
                   <IoCheckbox
                     size={22}
                     className={`cursor-pointer ${
-                      alreadyAdded 
-                        ? "text-gray-400" 
-                        : isSelected 
-                        ? "text-[#5A9CD0]" 
+                      alreadyAdded
+                        ? "text-gray-400"
+                        : isSelected
+                        ? "text-[#5A9CD0]"
                         : "text-[#aaa]"
                     }`}
                     onClick={() => {
@@ -199,8 +207,8 @@ function SearchModal({
           </button>
           <button
             className={`px-4 py-2 rounded-lg text-white ${
-              modalSelected.length > 0 
-                ? "bg-[#5A9CD0] hover:bg-[#4A8BC0]" 
+              modalSelected.length > 0
+                ? "bg-[#5A9CD0] hover:bg-[#4A8BC0]"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
             onClick={handleAddClick}
@@ -349,7 +357,8 @@ export default function AdminGroup() {
   };
 
   const handleAddStudents = async (selectedIds) => {
-    if (!cls || selectedIds.length === 0) return alert("추가할 학생을 선택해주세요.");
+    if (!cls || selectedIds.length === 0)
+      return alert("추가할 학생을 선택해주세요.");
 
     try {
       const token = localStorage.getItem("accessToken");
@@ -361,16 +370,16 @@ export default function AdminGroup() {
 
       // 새로 추가된 학생들을 현재 학생 목록에 추가
       const newStudents = users
-        .filter(u => selectedIds.includes(u.user_id))
-        .map(u => ({ 
-          id: u.user_id, 
-          name: u.username, 
-          photo: getRandomPhoto() 
+        .filter((u) => selectedIds.includes(u.user_id))
+        .map((u) => ({
+          id: u.user_id,
+          name: u.username,
+          photo: getRandomPhoto(),
         }));
 
-      setCls(prev => ({ 
-        ...prev, 
-        students: [...prev.students, ...newStudents] 
+      setCls((prev) => ({
+        ...prev,
+        students: [...prev.students, ...newStudents],
       }));
 
       setSearchModalOpen(false);
@@ -466,7 +475,7 @@ export default function AdminGroup() {
       <AdminTitle />
       <div className="flex w-full">
         <AdminNav />
-        <div className="flex flex-col items-center mr-10 w-full my-10 rounded-3xl bg-[#fafafa] min-h-[830px]">
+        <div className="flex flex-col items-center mr-10 w-full rounded-3xl bg-[#fafafa] min-h-[830px]">
           {/* 그룹 정보 */}
           <div className="flex flex-col w-[90%] pt-10 pb-6 h-fit border-b-[4px] border-[#5A9CD0]">
             <div className="flex items-end">
@@ -537,7 +546,7 @@ export default function AdminGroup() {
           setSearchModalOpen={setSearchModalOpen}
           search={search}
           setSearch={setSearch}
-          clsStudentsIds={cls.students.map(s => s.id)}
+          clsStudentsIds={cls.students.map((s) => s.id)}
         />
       )}
       {editModalOpen && (

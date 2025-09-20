@@ -29,7 +29,7 @@ export default function Home() {
         if (response.data) {
           setUserInfo(response.data);
         }
-        console.log("응답 헤더:", response.headers)
+        console.log("응답 헤더:", response.headers);
       } catch (error) {
         console.error("사용자 정보 가져오기 실패:", error);
         if (error.response?.status === 401) {
@@ -49,7 +49,7 @@ export default function Home() {
       <div className="flex w-full">
         <UserNav />
 
-        <div className="flex flex-col items-center w-full lg:mr-10 rounded-3xl bg-[#fafafa] min-h-[930px] p-6">
+        <div className="flex flex-col items-center w-full lg:mr-10 rounded-3xl bg-[#fafafa] min-h-[830px] p-6">
           <div className="flex flex-col items-center h-full gap-10 lg:flex-row lg:items-center">
             {/* 왼쪽 영역 */}
             <div className="flex flex-col items-center justify-center w-full mr-12 lg:w-1/2">

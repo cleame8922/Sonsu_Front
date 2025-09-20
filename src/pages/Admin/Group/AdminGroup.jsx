@@ -336,6 +336,10 @@ export default function AdminGroup() {
                 onClick={() => setSearchModalOpen(true)}
               />
             </div>
+
+            <p className="mt-2 text-sm text-gray-600">
+              {cls.desc}
+            </p>
           </div>
 
           {/* 학생 리스트 */}

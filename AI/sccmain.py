@@ -2,15 +2,27 @@ from flask import Flask, Response, jsonify, request
 import random
 import pymysql
 import cv2
+import os
 from flask_cors import CORS
 from scc import CameraManager, InferenceEngine
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from dotenv import load_dotenv
+import mediapipe as mp
 
+# ------------------- 환경 설정 -------------------
+load_dotenv()
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# 모든 라우트에 대해 CORS 적용, withCredentials 사용 가능
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
+app.config['JWT_SECRET_KEY'] = os.getenv("JWT_KEY")
+jwt = JWTManager(app)
+
+# ------------------- 카메라/모델 초기화 -------------------
 camera = CameraManager()
 inference = InferenceEngine()
 
+# ------------------- 게임 라우트 -------------------
 @app.route('/get_question', methods=['GET'])
 def game1_get_question():
     question = random.choice(inference.actions)
@@ -20,18 +32,25 @@ def game1_get_question():
 @app.route('/get_game_info', methods=['GET'])
 def game1_get_game_info():
     question, result, confidence = inference.get_state()
-    return jsonify({"question": question, "game_result": result, "confidence": confidence})
 
+    if confidence is not None:
+        confidence = float(confidence)
+
+    print("👉 게임 상태:", question, result, confidence)
+
+    return jsonify({
+        "question": question,
+        "game_result": result,
+        "confidence": confidence
+    })
+
+# ------------------- 오답 저장 -------------------
 @app.route('/save_incorrect', methods=['POST'])
+@jwt_required()
 def save_result():
     data = request.json
-    user_id = data.get('user_id')
-    user_lesson_id = data.get('userLesson_id')
-    confidence = data.get('confidence')
-    result = data.get('result')
-
-    check_answer = True if "정답" in result else False #수정
-    check_accuracy = int(confidence * 100)
+    user_id = get_jwt_identity()
+    answers = data.get('answers', [])
 
     try:
         conn = pymysql.connect(
@@ -42,11 +61,18 @@ def save_result():
             charset='utf8'
         )
         with conn.cursor() as cursor:
-            sql = """
-                INSERT INTO games (userLesson_id, user_id, check_answer, check_accuracy)
-                VALUES (%s, %s, %s, %s)
-            """
-            cursor.execute(sql, (user_lesson_id, user_id, check_answer, check_accuracy))
+            for ans in answers:
+                question = ans.get("question")
+                confidence = ans.get("confidence")
+                if confidence is None:
+                    confidence = 0.0  # null 방지
+                check_accuracy = int(confidence * 100)
+
+                sql = """
+                    INSERT INTO games (user_id, check_answer, check_accuracy)
+                    VALUES (%s, %s, %s)
+                """
+                cursor.execute(sql, (user_id, question, check_accuracy))
         conn.commit()
         return jsonify({"status": "success"})
     except Exception as e:
@@ -55,8 +81,7 @@ def save_result():
     finally:
         conn.close()
 
-import mediapipe as mp
-
+# ------------------- 영상 스트리밍 -------------------
 def generate_frames_game1(target_width=1080, target_height=607):  # 16:9
     mp_drawing = mp.solutions.drawing_utils
     mp_holistic = inference.mp_holistic
@@ -66,14 +91,11 @@ def generate_frames_game1(target_width=1080, target_height=607):  # 16:9
         if frame is None:
             continue
 
-        # 동작 인식
-        predicted_action, confidence = inference.process_frame(frame)
+        predicted_action, confidence, game_result = inference.process_frame(frame)
 
-        # Mediapipe Holistic 처리
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         result = inference.holistic.process(img_rgb)
 
-        # 관절 그리기 (손 + 팔 + 몸)
         if result.pose_landmarks:
             mp_drawing.draw_landmarks(
                 frame,
@@ -101,10 +123,7 @@ def generate_frames_game1(target_width=1080, target_height=607):  # 16:9
                 mp_drawing.DrawingSpec(color=(0,0,128), thickness=2, circle_radius=2)
             )
 
-        # 영상 크기 조정
         frame = cv2.resize(frame, (target_width, target_height))
-
-        # JPEG 인코딩
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
@@ -118,5 +137,6 @@ def game1_video_feed():
 def get_confidence_route():
     return jsonify({'confidence': inference.confidence_value})
 
+# ------------------- 서버 실행 -------------------
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

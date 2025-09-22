@@ -26,21 +26,34 @@ export default function CustomCard({
     onDeleteLesson(lessonCategoryId);
   };
 
+  const handleWordDelete = (categoryId, word, wordIndex, e) => {
+    e.stopPropagation();
+    if (onDeleteWord) {
+      onDeleteWord(categoryId, word, wordIndex);
+    }
+  };
+
   const toggleLesson = (id, e) => {
     e.stopPropagation();
     setOpenLessonId(openLessonId === id ? null : id);
   };
 
   const filteredLessons = lessons.filter((l) => {
-    const hasLevel = l.lessonLevel_id !== undefined && l.lessonLevel_id !== null;
+    const hasLevel =
+      l.lessonLevel_id !== undefined && l.lessonLevel_id !== null;
     if (!hasLevel) return true;
     return l.lessonLevel_id === tabLevelId[activeTab];
   });
 
+  // 단어가 삭제 대기 중인지 확인하는 함수
+  const isWordPendingDelete = (lessonId) => {
+    return pendingWordDeletes.includes(lessonId);
+  };
+
   return (
     <div
       className="w-[45%] h-[650px] rounded-[40px] p-8 shadow-xl"
-      style={{ backgroundColor: classColor }} // ✅ 부모에서 내려준 그룹색 반영
+      style={{ backgroundColor: classColor }}
     >
       {/* 제목 + 레벨 탭 */}
       <div className="flex items-center justify-between mb-4">
@@ -97,7 +110,9 @@ export default function CustomCard({
                 </p>
                 <div className="flex items-center space-x-3">
                   <p className="text-sm text-gray-600 truncate">
-                    {lesson.words?.join(", ") || "단어 정보 없음"}
+                    {lesson.words
+                      ?.map((w) => (typeof w === "string" ? w : w.word))
+                      .join(", ") || "단어 정보 없음"}
                   </p>
                   <p className="text-xs text-gray-400">
                     {openLessonId === lesson.lessonCategory_id ? "▲" : "▼"}
@@ -118,23 +133,45 @@ export default function CustomCard({
               <div className="pl-4 mt-4 ml-4 border-l-2 border-gray-300">
                 <div className="space-y-1">
                   {lesson.words && lesson.words.length > 0 ? (
-                    lesson.words.map((word, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between py-1 pr-2"
-                      >
-                        <p className="text-sm text-gray-700">• {word}</p>
-                        <FaRegTrashAlt
-                          size={12}
-                          className="ml-2 text-red-400 transition-transform cursor-pointer hover:text-red-600 hover:scale-110"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteWord &&
-                              onDeleteWord(lesson.lessonCategory_id, word, idx);
-                          }}
-                        />
-                      </div>
-                    ))
+                    lesson.words.map((wordData, idx) => {
+                      // wordData가 문자열인지 객체인지 확인
+                      const word =
+                        typeof wordData === "string" ? wordData : wordData.word;
+                      const lessonId =
+                        typeof wordData === "object" ? wordData.lessonId : null;
+                      const isPendingDelete = lessonId
+                        ? isWordPendingDelete(lessonId)
+                        : false;
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center justify-between py-1 pr-2 transition-opacity ${
+                            isPendingDelete ? "opacity-50 line-through" : ""
+                          }`}
+                        >
+                          <p className="text-sm text-gray-700">• {word}</p>
+                          <FaRegTrashAlt
+                            size={12}
+                            className={`ml-2 transition-transform cursor-pointer hover:scale-110 ${
+                              isPendingDelete
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-red-400 hover:text-red-600"
+                            }`}
+                            onClick={(e) => {
+                              if (!isPendingDelete) {
+                                handleWordDelete(
+                                  lesson.lessonCategory_id,
+                                  word,
+                                  idx,
+                                  e
+                                );
+                              }
+                            }}
+                          />
+                        </div>
+                      );
+                    })
                   ) : (
                     <p className="text-sm italic text-gray-500">
                       세부 강의 없음

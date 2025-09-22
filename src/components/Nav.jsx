@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
 FaBars,
-FaBook,
 FaChalkboardTeacher,
 FaClipboardList,
 } from "react-icons/fa";
@@ -77,13 +76,6 @@ return (
             to="/SpeedStart"
             closeSidebar={() => setIsSidebarOpen(false)} // Close sidebar when clicked
             />
-            {/* <NavItem
-            isOpen={isSidebarOpen}
-            icon={<FaBook color="#000000" />}
-            label="학습 데이터"
-            to="/"
-            closeSidebar={() => setIsSidebarOpen(false)} // Close sidebar when clicked
-            /> */}
             <NavItem
             isOpen={isSidebarOpen}
             icon={<BsFillPersonFill color="#000000" />}

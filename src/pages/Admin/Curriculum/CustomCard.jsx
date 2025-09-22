@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 
 export default function CustomCard({
@@ -6,11 +6,11 @@ export default function CustomCard({
   name,
   lessons = [],
   onDeleteLesson,
-  onDeleteWord, // 개별 단어 삭제 함수 추가
-  pendingWordDeletes = [], // 삭제 예정인 lessonId들
+  onDeleteWord,
+  pendingWordDeletes = [],
+  classColor = "#DEE6F1",
 }) {
   const [activeTab, setActiveTab] = useState("초급");
-  const [classColor, setClassColor] = useState("#DEE6F1");
   const [openLessonId, setOpenLessonId] = useState(null);
 
   const tabColors = {
@@ -23,34 +23,24 @@ export default function CustomCard({
 
   const handleDelete = (lessonCategoryId, e) => {
     e.stopPropagation();
-
-    // 부모 컴포넌트의 삭제 함수만 호출
-    // 상태 관리는 부모(Curri_Part)에서만 처리
     onDeleteLesson(lessonCategoryId);
   };
 
   const toggleLesson = (id, e) => {
     e.stopPropagation();
-    console.log("Toggle lesson:", id);
     setOpenLessonId(openLessonId === id ? null : id);
   };
 
-  // lessons prop만 사용 (단일 데이터 소스)
   const filteredLessons = lessons.filter((l) => {
-    const hasLevel =
-      l.lessonLevel_id !== undefined && l.lessonLevel_id !== null;
-
-    if (!hasLevel) {
-      return true; // 레벨이 없으면 모든 탭에서 표시
-    }
-
+    const hasLevel = l.lessonLevel_id !== undefined && l.lessonLevel_id !== null;
+    if (!hasLevel) return true;
     return l.lessonLevel_id === tabLevelId[activeTab];
   });
 
   return (
     <div
       className="w-[45%] h-[650px] rounded-[40px] p-8 shadow-xl"
-      style={{ backgroundColor: classColor }}
+      style={{ backgroundColor: classColor }} // ✅ 부모에서 내려준 그룹색 반영
     >
       {/* 제목 + 레벨 탭 */}
       <div className="flex items-center justify-between mb-4">
@@ -76,7 +66,7 @@ export default function CustomCard({
 
       {/* 강의 리스트 */}
       <div className="h-[550px] overflow-y-auto space-y-4">
-        <div className="text-xs text-gray-600 mb-2">
+        <div className="mb-2 text-xs text-gray-600">
           전체: {lessons.length}개, 현재 탭: {filteredLessons.length}개
         </div>
 
@@ -125,7 +115,7 @@ export default function CustomCard({
 
             {/* 토글 내용 */}
             {openLessonId === lesson.lessonCategory_id && (
-              <div className="mt-4 ml-4 pl-4 border-l-2 border-gray-300">
+              <div className="pl-4 mt-4 ml-4 border-l-2 border-gray-300">
                 <div className="space-y-1">
                   {lesson.words && lesson.words.length > 0 ? (
                     lesson.words.map((word, idx) => (
@@ -136,7 +126,7 @@ export default function CustomCard({
                         <p className="text-sm text-gray-700">• {word}</p>
                         <FaRegTrashAlt
                           size={12}
-                          className="text-red-400 transition-transform cursor-pointer hover:text-red-600 hover:scale-110 ml-2"
+                          className="ml-2 text-red-400 transition-transform cursor-pointer hover:text-red-600 hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation();
                             onDeleteWord &&
@@ -146,7 +136,7 @@ export default function CustomCard({
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500 italic">
+                    <p className="text-sm italic text-gray-500">
                       세부 강의 없음
                     </p>
                   )}

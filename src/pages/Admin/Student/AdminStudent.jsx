@@ -404,12 +404,12 @@ export default function AdminGroup() {
           name: data.class_name,
           desc: data.description,
           code: data.class_code,
-          color: colors[(data.color_id || 1) - 1],
+          color: data.color_hex,
           students: data.students || [],
         });
         setGroupName(data.class_name);
         setGroupDesc(data.description);
-        setSelectedColor(colors[(data.color_id || 1) - 1]);
+        setSelectedColor(data.color_hex);
       } catch (err) {
         console.error(err);
         alert("클래스 조회에 실패했습니다.");

@@ -17,6 +17,7 @@ export default function Curri_Part() {
 
   const [customLessons, setCustomLessons] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pendingWordDeletes, setPendingWordDeletes] = useState([]); // 삭제 대기 중인 단어들
 
   // 서버에서 데이터를 가져오는 함수를 별도로 분리
   const fetchLessons = async () => {
@@ -32,7 +33,13 @@ export default function Curri_Part() {
         lessonCategory_id: category.id,
         part_number: category.partNumber,
         category: category.categoryName,
-        words: category.lessons?.map((l) => l.word) || [],
+        words:
+          category.lessons?.map((l) => ({
+            lessonId: l.lessonId,
+            word: l.word,
+            animationPath: l.animationPath,
+            stepNumber: l.stepNumber,
+          })) || [],
         lessonLevel_id: category.lessonLevel,
       }));
 
@@ -62,7 +69,7 @@ export default function Curri_Part() {
     loadLessons();
   }, [classId]);
 
-  // SonsuCard에서 + 클릭 시 호출
+  // SonsuCard에서 카테고리 + 클릭 시 호출
   const handleAddLesson = (lesson) => {
     // 이미 있는지 한 번 더 확인 (안전장치)
     const alreadyExists = customLessons.some(
@@ -76,10 +83,79 @@ export default function Curri_Part() {
     }
   };
 
-  // CustomCard에서 삭제 시 호출
+  // SonsuCard에서 개별 단어 + 클릭 시 호출
+  const handleAddWord = async (categoryId, lessonId, word) => {
+    try {
+      setLoading(true);
+      const token = getToken();
+
+      // 개별 레슨 추가 API 호출
+      await axios.post(
+        `${API_URL}/class/${classId}/add`,
+        { lessonIds: [lessonId] },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      // 성공 시 최신 데이터로 업데이트
+      const updatedLessons = await fetchLessons();
+      setCustomLessons(updatedLessons);
+
+      alert(`"${word}" 단어가 성공적으로 추가되었습니다.`);
+    } catch (err) {
+      console.error("단어 추가 실패:", err);
+      if (err.response?.status === 400) {
+        alert("이미 추가된 단어입니다.");
+      } else {
+        alert("단어 추가에 실패했습니다.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // CustomCard에서 카테고리 삭제 시 호출
   const handleDeleteLesson = (lessonId) => {
     setCustomLessons((prevLessons) =>
       prevLessons.filter((l) => l.lessonCategory_id !== lessonId)
+    );
+  };
+
+  // CustomCard에서 개별 단어 삭제 시 호출
+  const handleDeleteWord = (categoryId, word, wordIndex) => {
+    // 삭제할 단어의 lessonId 찾기
+    const category = customLessons.find(
+      (l) => l.lessonCategory_id === categoryId
+    );
+    if (!category || !category.words[wordIndex]) {
+      console.error("삭제할 단어를 찾을 수 없습니다.");
+      return;
+    }
+
+    const lessonId = category.words[wordIndex].lessonId;
+
+    // 삭제 대기 목록에 추가
+    setPendingWordDeletes((prev) => [...prev, lessonId]);
+
+    // 화면에서 즉시 제거
+    setCustomLessons((prevLessons) =>
+      prevLessons.map((lesson) => {
+        if (lesson.lessonCategory_id === categoryId) {
+          const updatedWords = lesson.words.filter(
+            (_, index) => index !== wordIndex
+          );
+          return {
+            ...lesson,
+            words: updatedWords,
+          };
+        }
+        return lesson;
+      })
     );
   };
 
@@ -116,11 +192,29 @@ export default function Curri_Part() {
 
       console.log("Categories to delete:", categoriesToDelete);
       console.log("Categories to add:", categoriesToAdd);
+      console.log("Words to delete:", pendingWordDeletes);
 
       // 변경사항이 없으면 저장하지 않음
-      if (categoriesToDelete.length === 0 && categoriesToAdd.length === 0) {
+      if (
+        categoriesToDelete.length === 0 &&
+        categoriesToAdd.length === 0 &&
+        pendingWordDeletes.length === 0
+      ) {
         alert("변경사항이 없습니다.");
         return;
+      }
+
+      // 삭제할 개별 단어가 있다면 삭제 API 호출
+      if (pendingWordDeletes.length > 0) {
+        await axios.delete(`${API_URL}/class/${classId}/delete`, {
+          data: { lessonIds: pendingWordDeletes },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        });
+        console.log("개별 레슨 삭제 완료:", pendingWordDeletes);
       }
 
       // 삭제할 카테고리가 있다면 삭제 API 호출
@@ -154,20 +248,12 @@ export default function Curri_Part() {
       const updatedLessons = await fetchLessons();
       setCustomLessons(updatedLessons);
 
+      // 삭제 대기 목록 초기화
+      setPendingWordDeletes([]);
+
       alert("강의 저장 완료!");
     } catch (err) {
       console.error("저장 실패:", err);
-
-      // 더 자세한 에러 정보 로깅
-      if (err.response) {
-        console.error("응답 상태:", err.response.status);
-        console.error("응답 데이터:", err.response.data);
-        console.error("응답 헤더:", err.response.headers);
-      } else if (err.request) {
-        console.error("요청 객체:", err.request);
-      } else {
-        console.error("에러 메시지:", err.message);
-      }
 
       alert(
         `저장 실패: ${err.response?.status} ${
@@ -221,12 +307,16 @@ export default function Curri_Part() {
               classId={classId}
               activeTab="초급"
               onAddLesson={handleAddLesson}
+              onAddWord={handleAddWord}
               customLessons={customLessons}
+              loading={loading}
             />
             <CustomCard
               classId={classId}
               lessons={customLessons}
               onDeleteLesson={handleDeleteLesson}
+              onDeleteWord={handleDeleteWord}
+              pendingWordDeletes={pendingWordDeletes}
               name={classInfo.name}
               classColor={classInfo.colorHex}
             />

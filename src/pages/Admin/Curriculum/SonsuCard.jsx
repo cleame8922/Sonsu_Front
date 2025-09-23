@@ -8,6 +8,7 @@ export default function SonsuCard({
   onAddLesson,
   onAddWord,
   customLessons,
+  pendingWordAdds,
   loading: parentLoading,
 }) {
   const [activeTab, setActiveTab] = useState("초급");
@@ -37,14 +38,9 @@ export default function SonsuCard({
           `${API_URL}/lessons/${tabLevelId[activeTab]}/categories`
         );
         const lessonsData = res.data.categoriesWithWord || [];
-
-        // API 응답 구조 확인을 위한 로그
-        console.log("SonsuCard - API Response:", res.data);
-        console.log("SonsuCard - Lessons data:", lessonsData);
-
         setLessons(lessonsData);
       } catch (err) {
-        console.error(err);
+        console.error("레슨 데이터 가져오기 실패:", err);
         setLessons([]);
       } finally {
         setLoading(false);
@@ -56,18 +52,32 @@ export default function SonsuCard({
 
   // 카테고리 전체가 이미 추가되었는지 확인
   const isCategoryAdded = (categoryId) => {
-    return customLessons.some((l) => l.lessonCategory_id === categoryId);
+    return (
+      customLessons?.some((l) => l.lessonCategory_id === categoryId) || false
+    );
   };
 
-  // 개별 단어가 이미 추가되었는지 확인
-  const isWordAdded = (categoryId, word) => {
-    const category = customLessons.find(
+  // 개별 단어가 이미 추가되었는지 확인 (추가 대기열 포함)
+  const isWordAdded = (categoryId, word, lessonId) => {
+    // 1. 이미 클래스에 추가된 단어인지 확인
+    const category = customLessons?.find(
       (l) => l.lessonCategory_id === categoryId
     );
-    if (!category) return false;
-    return category.words.some(
-      (w) => (typeof w === "string" ? w : w.word) === word
-    );
+    if (
+      category &&
+      category.words?.some((w) => (typeof w === "string" ? w : w.word) === word)
+    ) {
+      return true;
+    }
+
+    // 2. 추가 대기열에 있는지 확인
+    const isPending =
+      pendingWordAdds?.some((add) => add.lessonId === lessonId) || false;
+    if (isPending) {
+      return true;
+    }
+
+    return false;
   };
 
   const handleAdd = (lesson) => {
@@ -80,18 +90,14 @@ export default function SonsuCard({
   };
 
   const handleWordAdd = async (categoryId, word, lessonId) => {
-    if (parentLoading) return; // 상위 컴포넌트가 로딩 중이면 차단
+    if (parentLoading) return;
 
-    // 이미 추가된 단어인지 확인
-    if (isWordAdded(categoryId, word)) {
-      alert("이미 추가된 단어입니다.");
+    if (isWordAdded(categoryId, word, lessonId)) {
+      alert("이미 추가된 단어이거나 추가 대기 중입니다.");
       return;
     }
 
-    // 개별 단어 추가 함수 호출
-    if (onAddWord) {
-      await onAddWord(categoryId, lessonId, word);
-    }
+    await onAddWord(categoryId, lessonId, word);
   };
 
   const toggleLesson = (id) => {
@@ -157,10 +163,12 @@ export default function SonsuCard({
                       Part {lesson.part_number}. {lesson.category}
                     </p>
                     <div className="flex items-center space-x-3">
-                      <p className="text-sm text-gray-600 truncate ">
-                        {lesson.words?.join(", ") || "단어 정보 없음"}
+                      <p className="text-sm text-gray-600 truncate">
+                        {lesson.words
+                          ?.map((w) => (typeof w === "string" ? w : w.word))
+                          .join(", ") || "단어 정보 없음"}
                       </p>
-                      <p className="text-xs text-gray-400 ">
+                      <p className="text-xs text-gray-400">
                         {openLessonId === lesson.lessonCategory_id ? "▲" : "▼"}
                       </p>
                     </div>
@@ -186,15 +194,19 @@ export default function SonsuCard({
                   <div className="mt-4 ml-4 pl-4 border-l-2 border-gray-300">
                     <div className="space-y-1">
                       {lesson.words && lesson.words.length > 0 ? (
-                        lesson.words.map((word, idx) => {
-                          // lesson.lessonDetails에서 lessonId 찾기 (API 구조에 따라 조정 필요)
+                        lesson.words.map((wordItem, idx) => {
+                          const word =
+                            typeof wordItem === "string"
+                              ? wordItem
+                              : wordItem.word;
                           const lessonId =
-                            lesson.lessonDetails?.[idx]?.lessonId ||
-                            lesson.lessons?.[idx]?.lessonId ||
-                            null;
+                            typeof wordItem === "object"
+                              ? wordItem.lessonId
+                              : `${lesson.lessonCategory_id}_${idx}`;
                           const wordAdded = isWordAdded(
                             lesson.lessonCategory_id,
-                            word
+                            word,
+                            lessonId
                           );
 
                           return (
@@ -209,28 +221,26 @@ export default function SonsuCard({
                               >
                                 • {word}
                               </p>
-                              <RxPlus
-                                size={12}
-                                className={`transition-transform cursor-pointer ml-2 ${
-                                  wordAdded || parentLoading
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-green-500 hover:text-green-700 hover:scale-110"
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (
-                                    !wordAdded &&
-                                    !parentLoading &&
-                                    lessonId
-                                  ) {
-                                    handleWordAdd(
-                                      lesson.lessonCategory_id,
-                                      word,
-                                      lessonId
-                                    );
-                                  }
-                                }}
-                              />
+                              <div className="flex items-center">
+                                <RxPlus
+                                  size={12}
+                                  className={`transition-transform cursor-pointer ml-2 ${
+                                    wordAdded || parentLoading
+                                      ? "text-gray-400 cursor-not-allowed"
+                                      : "text-green-500 hover:text-green-700 hover:scale-110"
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!wordAdded && !parentLoading) {
+                                      handleWordAdd(
+                                        lesson.lessonCategory_id,
+                                        word,
+                                        lessonId
+                                      );
+                                    }
+                                  }}
+                                />
+                              </div>
                             </div>
                           );
                         })

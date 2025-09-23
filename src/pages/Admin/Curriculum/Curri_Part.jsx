@@ -18,6 +18,7 @@ export default function Curri_Part() {
   const [customLessons, setCustomLessons] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pendingWordDeletes, setPendingWordDeletes] = useState([]); // 삭제 대기 중인 단어들
+  const [pendingWordAdds, setPendingWordAdds] = useState([]); // 추가 대기 중인 단어들
 
   // 서버에서 데이터를 가져오는 함수를 별도로 분리
   const fetchLessons = async () => {
@@ -83,40 +84,52 @@ export default function Curri_Part() {
     }
   };
 
-  // SonsuCard에서 개별 단어 + 클릭 시 호출
+  // SonsuCard에서 개별 단어 + 클릭 시 호출 (즉시 반영이 아닌 대기열에 추가)
   const handleAddWord = async (categoryId, lessonId, word) => {
-    try {
-      setLoading(true);
-      const token = getToken();
-
-      // 개별 레슨 추가 API 호출
-      await axios.post(
-        `${API_URL}/class/${classId}/add`,
-        { lessonIds: [lessonId] },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-
-      // 성공 시 최신 데이터로 업데이트
-      const updatedLessons = await fetchLessons();
-      setCustomLessons(updatedLessons);
-
-      alert(`"${word}" 단어가 성공적으로 추가되었습니다.`);
-    } catch (err) {
-      console.error("단어 추가 실패:", err);
-      if (err.response?.status === 400) {
-        alert("이미 추가된 단어입니다.");
-      } else {
-        alert("단어 추가에 실패했습니다.");
-      }
-    } finally {
-      setLoading(false);
+    // 이미 추가 대기열에 있는지 확인
+    const alreadyPending = pendingWordAdds.some(
+      (add) => add.lessonId === lessonId
+    );
+    if (alreadyPending) {
+      alert("이미 추가 대기 중인 단어입니다.");
+      return;
     }
+
+    // 이미 클래스에 있는지 확인
+    const category = customLessons.find(
+      (l) => l.lessonCategory_id === categoryId
+    );
+    if (category && category.words.some((w) => w.lessonId === lessonId)) {
+      alert("이미 추가된 단어입니다.");
+      return;
+    }
+
+    // 추가 대기열에 추가
+    setPendingWordAdds((prev) => [...prev, { categoryId, lessonId, word }]);
+
+    // 화면에 즉시 반영 (임시로)
+    setCustomLessons((prevLessons) =>
+      prevLessons.map((lesson) => {
+        if (lesson.lessonCategory_id === categoryId) {
+          return {
+            ...lesson,
+            words: [
+              ...lesson.words,
+              {
+                lessonId,
+                word,
+                animationPath: null,
+                stepNumber: 0,
+                isPending: true,
+              },
+            ],
+          };
+        }
+        return lesson;
+      })
+    );
+
+    alert(`"${word}" 단어가 추가되었습니다. 수정완료 버튼을 눌러주세요.`);
   };
 
   // CustomCard에서 카테고리 삭제 시 호출
@@ -139,8 +152,15 @@ export default function Curri_Part() {
 
     const lessonId = category.words[wordIndex].lessonId;
 
-    // 삭제 대기 목록에 추가
-    setPendingWordDeletes((prev) => [...prev, lessonId]);
+    // 만약 추가 대기 중인 단어라면 대기열에서만 제거
+    if (category.words[wordIndex].isPending) {
+      setPendingWordAdds((prev) =>
+        prev.filter((add) => add.lessonId !== lessonId)
+      );
+    } else {
+      // 기존 단어라면 삭제 대기 목록에 추가
+      setPendingWordDeletes((prev) => [...prev, lessonId]);
+    }
 
     // 화면에서 즉시 제거
     setCustomLessons((prevLessons) =>
@@ -161,7 +181,7 @@ export default function Curri_Part() {
 
   // 수정완료 버튼 클릭 시 백엔드 저장
   const handleSave = async () => {
-    if (loading) return; // 로딩 중이면 중복 요청 방지
+    if (loading) return;
 
     setLoading(true);
     try {
@@ -193,12 +213,14 @@ export default function Curri_Part() {
       console.log("Categories to delete:", categoriesToDelete);
       console.log("Categories to add:", categoriesToAdd);
       console.log("Words to delete:", pendingWordDeletes);
+      console.log("Words to add:", pendingWordAdds);
 
       // 변경사항이 없으면 저장하지 않음
       if (
         categoriesToDelete.length === 0 &&
         categoriesToAdd.length === 0 &&
-        pendingWordDeletes.length === 0
+        pendingWordDeletes.length === 0 &&
+        pendingWordAdds.length === 0
       ) {
         alert("변경사항이 없습니다.");
         return;
@@ -215,6 +237,23 @@ export default function Curri_Part() {
           withCredentials: true,
         });
         console.log("개별 레슨 삭제 완료:", pendingWordDeletes);
+      }
+
+      // 추가할 개별 단어가 있다면 추가 API 호출
+      if (pendingWordAdds.length > 0) {
+        const lessonIdsToAdd = pendingWordAdds.map((add) => add.lessonId);
+        await axios.post(
+          `${API_URL}/class/${classId}/add`,
+          { lessonIds: lessonIdsToAdd },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        console.log("개별 레슨 추가 완료:", lessonIdsToAdd);
       }
 
       // 삭제할 카테고리가 있다면 삭제 API 호출
@@ -248,8 +287,9 @@ export default function Curri_Part() {
       const updatedLessons = await fetchLessons();
       setCustomLessons(updatedLessons);
 
-      // 삭제 대기 목록 초기화
+      // 대기 목록들 초기화
       setPendingWordDeletes([]);
+      setPendingWordAdds([]);
 
       alert("강의 저장 완료!");
     } catch (err) {
@@ -309,6 +349,7 @@ export default function Curri_Part() {
               onAddLesson={handleAddLesson}
               onAddWord={handleAddWord}
               customLessons={customLessons}
+              pendingWordAdds={pendingWordAdds}
               loading={loading}
             />
             <CustomCard

@@ -66,7 +66,6 @@ export default function Classroom() {
           }
         );
         setCompletedTopics(topicsRes.data || []);
-        console.log("Completed topics:", topicsRes.data);
       } catch (err) {
         console.error("진도 불러오기 실패:", err);
       }
@@ -205,6 +204,18 @@ export default function Classroom() {
     }
   };
 
+  // 단어 배열을 문자열로 변환하는 함수
+  const formatWords = (words) => {
+    if (!words || !Array.isArray(words)) return "";
+
+    return words
+      .map((wordItem) => {
+        // wordItem이 객체인 경우 word 속성 추출, 문자열인 경우 그대로 사용
+        return typeof wordItem === "object" ? wordItem.word : wordItem;
+      })
+      .join(", ");
+  };
+
   return (
     <div className="min-h-screen bg-[#FFE694]">
       <UserTitle />
@@ -272,7 +283,7 @@ export default function Classroom() {
                           Part {lesson.part_number}. {lesson.category}
                         </p>
                         <p className="text-sm text-gray-600 truncate w-[150px]">
-                          {lesson.words?.join(", ")}
+                          {formatWords(lesson.words)}
                         </p>
                       </div>
                     </div>
